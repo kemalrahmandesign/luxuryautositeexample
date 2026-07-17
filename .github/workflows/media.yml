@@ -36,8 +36,10 @@ jobs:
                 ;;
               *)
                 curl -fsSL "$url" -o /tmp/src.mp4
+                # scale to 1080p, denoise, deband, crush noisy near-blacks to true black
                 ffmpeg -nostdin -y -i /tmp/src.mp4 -an \
-                  -c:v libx264 -preset slow -crf 21 -g 4 \
+                  -vf "scale=1920:1080:flags=lanczos,hqdn3d=2:1.5:4:3,deband=1thr=0.013:2thr=0.013:3thr=0.013:range=12:blur=1,colorlevels=rimin=0.02:gimin=0.02:bimin=0.02" \
+                  -c:v libx264 -preset slow -crf 19 -g 4 \
                   -pix_fmt yuv420p -movflags +faststart \
                   "media/$name.mp4"
                 ;;

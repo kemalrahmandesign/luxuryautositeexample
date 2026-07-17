@@ -1,7 +1,7 @@
 # name url
 # .png entries are copied as-is; everything else is re-encoded to media/<name>.mp4
 # sources are true-1080p Topaz enhancements; dive and emerge are the Veo 3.1 clips
-pan https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260717_072238_d7a60b6a-bfa4-491d-b689-a427c5f724fe.mp4
+pan https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260717_143657_597dcaf9-45de-49c2-8e99-03f4de71d28d.mp4
 morph https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260717_073322_520b75de-d38e-4ddb-864f-95303297d780.mp4
 dive https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260717_073349_35c8bd1e-79b0-499c-ba3e-3ad7aa2ef5a8.mp4
 warp https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260717_073327_782f6d82-86a5-4049-ba16-4951470dcf3c.mp4

@@ -1,0 +1,63 @@
+/* Vanta Exotic Auto Repair: design tokens (Ciridae system) */
+
+:root {
+  /* Colors */
+  --color-ember-rust: #cc6437;
+  --color-void-black: #0b0b0b;
+  --color-charcoal-surface: #272a2a;
+  --color-bone: #edebe7;
+  --color-bone-darker: #dfddd9;
+  --color-pure-white: #ffffff;
+  --color-abyss: #050505;
+  --color-steel: #484848;
+  --color-ash: #cecece;
+
+  /* Seam constants: must match js/motion.js */
+  --seam-white: #edebe7;
+  --seam-canvas: #0b0b0b;
+
+  /* Typography */
+  --font-display: 'Oswald', ui-sans-serif, system-ui, sans-serif;
+  --font-body: 'Inter', ui-sans-serif, system-ui, sans-serif;
+
+  --text-caption: 11px;
+  --leading-caption: 1.1;
+  --tracking-caption: -0.22px;
+  --text-body-sm: 14px;
+  --leading-body-sm: 1.43;
+  --tracking-body-sm: -0.28px;
+  --text-heading-sm: 20px;
+  --leading-heading-sm: 1;
+  --tracking-heading-sm: -0.4px;
+  --text-heading: 24px;
+  --leading-heading: 1.2;
+  --tracking-heading: -0.48px;
+  --text-heading-lg: 32px;
+  --leading-heading-lg: 1.05;
+  --tracking-heading-lg: -0.64px;
+
+  --font-weight-regular: 400;
+
+  /* Spacing */
+  --spacing-5: 5px;
+  --spacing-8: 8px;
+  --spacing-10: 10px;
+  --spacing-11: 11px;
+  --spacing-16: 16px;
+  --spacing-20: 20px;
+  --spacing-24: 24px;
+  --spacing-32: 32px;
+  --spacing-40: 40px;
+  --spacing-65: 65px;
+  --spacing-80: 80px;
+  --spacing-100: 100px;
+
+  /* Layout */
+  --page-max-width: 1400px;
+  --section-gap: 80px;
+  --card-padding: 32px;
+
+  /* Radii: pill for interactive, 10px for content, per system */
+  --radius-cards: 10px;
+  --radius-pill: 1440px;
+}

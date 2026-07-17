@@ -1,0 +1,51 @@
+name: media
+
+# Downloads manifest sources and re-encodes scrub films with dense keyframes.
+# Runs on Actions because the build sandbox cannot reach CloudFront.
+# Remember: this file must exist on the default branch before the dispatch
+# API can see it, and its commits do not trigger the pages workflow.
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  encode:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Fetch and encode media
+        run: |
+          set -euo pipefail
+          mkdir -p media
+          while read -r name url; do
+            [ -z "${name:-}" ] && continue
+            case "$name" in
+              \#*) continue ;;
+            esac
+            echo "processing $name"
+            case "$name" in
+              *.png)
+                curl -fsSL "$url" -o "media/$name"
+                ;;
+              *)
+                curl -fsSL "$url" -o /tmp/src.mp4
+                ffmpeg -nostdin -y -i /tmp/src.mp4 -an \
+                  -c:v libx264 -preset slow -crf 21 -g 4 \
+                  -pix_fmt yuv420p -movflags +faststart \
+                  "media/$name.mp4"
+                ;;
+            esac
+          done < media/manifest.txt
+
+      - name: Commit media
+        run: |
+          git config user.name "github-actions"
+          git config user.email "github-actions@users.noreply.github.com"
+          git add media
+          git diff --cached --quiet && exit 0
+          git commit -m "media: fetch and re-encode scrub films (-g 4)"
+          git push

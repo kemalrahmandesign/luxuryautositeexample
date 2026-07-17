@@ -1,0 +1,11 @@
+# name url
+# .png entries are copied as-is; everything else is re-encoded to media/<name>.mp4
+pan https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260716_224537_b54c1cc3-8c97-49b2-83a7-2dabed31ebf7.mp4
+morph https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260716_224555_d7df7b2f-c2e7-4bd2-aa5e-0a8b511ed0f7.mp4
+warp https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260716_232922_0ce5ab02-2168-4173-8de6-4b8a3d61b5c4.mp4
+emerge https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260716_230332_b92df234-d62c-4be6-a6b4-7e5a39490e35.mp4
+rise https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260716_233448_7caba0da-61dc-491d-a028-b5ccc87ad157.mp4
+hero-front.png https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260716_224335_d8c03dc9-9df1-4309-bc9c-b3a7acc3d594.png
+side.png https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260716_223803_f30f901f-117d-4830-ac9c-7937b9b5e80f.png
+skeleton.png https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260716_224339_eba502c6-1cb4-4105-9e6c-772df6d5a7dd.png
+headlight.png https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260716_223310_ff62b34f-1925-478c-8dee-dd77e6f91ee1.png

@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vanta Exotic Auto Repair</title>
+  <meta name="description" content="Demo showcase site. Exotic auto repair, presented in the dark.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400&family=Inter:wght@400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+
+  <nav class="nav">
+    <span class="nav__mark">VANTA</span>
+    <a class="pill" href="#book">Book</a>
+  </nav>
+
+  <!-- ============ HERO: hold, pan, skeleton, dive to white ============ -->
+  <section class="pin pin--hero" data-pin data-pin-name="hero">
+    <div class="pin__stage">
+
+      <div class="layer is-front hero__still" data-ph="pan">
+        <img class="layer__media" src="media/hero-front.png" alt="Porsche 911 GT3 RS front view in a black void">
+      </div>
+
+      <div class="layer hero__pan" data-ph="pan">
+        <video class="film__media" data-film="pan" muted playsinline webkit-playsinline preload="auto" disablepictureinpicture tabindex="-1" aria-hidden="true" poster="media/hero-front.png">
+          <source src="media/pan.mp4" type="video/mp4">
+        </video>
+      </div>
+
+      <div class="layer hero__morph" data-ph="morph">
+        <video class="film__media" data-film="morph" muted playsinline webkit-playsinline preload="auto" disablepictureinpicture tabindex="-1" aria-hidden="true" poster="media/side.png">
+          <source src="media/morph.mp4" type="video/mp4">
+        </video>
+      </div>
+
+      <!-- Skeleton hold and dive share one still: CSS carries the deep zoom -->
+      <div class="layer hero__dive" data-ph="morph">
+        <img class="layer__media" src="media/skeleton.png" alt="X-ray view of the car showing engine, brakes and suspension">
+      </div>
+
+      <div class="layer callouts">
+        <h2 class="callouts__title">One car. Every discipline.</h2>
+        <svg class="callouts__lines" viewBox="0 0 100 56.25" preserveAspectRatio="none" aria-hidden="true">
+          <path d="M 68 18 L 64 34 L 60 38" />
+          <path d="M 20 40 L 30 44 L 34 46" />
+          <path d="M 22 22 L 36 34 L 40 36" />
+          <path d="M 80 42 L 70 42 L 62 40" />
+        </svg>
+        <aside class="callout" style="top: 16vh; right: 8vw;">
+          <span class="badge">01</span>
+          <h3>Engine</h3>
+          <p>Flat-six out, rebuilt, dyno verified. Factory tolerances or tighter.</p>
+        </aside>
+        <aside class="callout" style="top: 58vh; left: 6vw;">
+          <span class="badge">02</span>
+          <h3>Brakes</h3>
+          <p>Carbon ceramic service, rotors, calipers, lines and fluid.</p>
+        </aside>
+        <aside class="callout" style="top: 18vh; left: 8vw;">
+          <span class="badge">03</span>
+          <h3>Suspension</h3>
+          <p>Dampers, geometry and corner balancing to race spec.</p>
+        </aside>
+        <aside class="callout" style="top: 62vh; right: 10vw;">
+          <span class="badge">04</span>
+          <h3>Body</h3>
+          <p>Panel, paint and aero. Blank surfaces, perfect gaps.</p>
+        </aside>
+        <aside class="callout callout--more" style="top: 78vh; right: 10vw;">
+          <span class="badge">And more</span>
+        </aside>
+      </div>
+
+      <canvas class="hero__particles" aria-hidden="true"></canvas>
+
+      <header class="hero__lockup">
+        <h1>Vanta</h1>
+        <p>Exotic auto repair</p>
+      </header>
+      <span class="hero__flank hero__flank--left">Precision is not optional</span>
+      <span class="hero__flank hero__flank--right">Exotics only</span>
+      <span class="hero__cue">Scroll</span>
+
+      <div class="veil veil--white"></div>
+    </div>
+  </section>
+
+  <!-- ============ WHITE ROOM: reviews, horizontal ============ -->
+  <section class="pin pin--reviews" data-pin data-pin-name="reviews">
+    <div class="pin__stage">
+      <h2 class="reviews__head" data-split>Word travels fast</h2>
+      <div class="reviews__track">
+        <article class="review">
+          <span class="badge">GT3 RS</span>
+          <p>"Three shops refused to open the engine. Vanta rebuilt it and handed me a dyno sheet better than delivery spec."</p>
+          <footer>M. Castellanos</footer>
+        </article>
+        <article class="review">
+          <span class="badge">Huracan Evo</span>
+          <p>"They found a wiring fault two dealerships missed. Car has never run cleaner."</p>
+          <footer>D. Okafor</footer>
+        </article>
+        <article class="review">
+          <span class="badge">720S</span>
+          <p>"Corner balanced and aligned for the track. The difference on turn-in is night and day."</p>
+          <footer>S. Lindqvist</footer>
+        </article>
+        <article class="review">
+          <span class="badge">911 Turbo S</span>
+          <p>"Ceramic brake service done in a day, with photos of every step. Nobody else works like this."</p>
+          <footer>A. Reyes</footer>
+        </article>
+        <article class="review">
+          <span class="badge">Aventador</span>
+          <p>"Paint correction after a bad wrap removal. It looks deeper than factory. Unreal."</p>
+          <footer>K. Tanaka</footer>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ WARP: white, streaks, headlight ============ -->
+  <section class="pin pin--warp" data-pin data-pin-name="warp">
+    <div class="pin__stage">
+
+      <div class="layer film--warp" data-ph="warp">
+        <video class="film__media" data-film="warp" muted playsinline webkit-playsinline preload="auto" disablepictureinpicture tabindex="-1" aria-hidden="true">
+          <source src="media/warp.mp4" type="video/mp4">
+        </video>
+      </div>
+
+      <div class="layer film--emerge" data-ph="emerge">
+        <video class="film__media" data-film="emerge" data-scrub-reverse muted playsinline webkit-playsinline preload="auto" disablepictureinpicture tabindex="-1" aria-hidden="true" poster="media/headlight.png">
+          <source src="media/emerge.mp4" type="video/mp4">
+        </video>
+      </div>
+
+      <div class="layer is-front light-hold">
+        <p class="light-hold__text light-hold__text--top">Light is a component too</p>
+        <p class="light-hold__text light-hold__text--left">Factory certified</p>
+        <p class="light-hold__text light-hold__text--right">OEM parts only</p>
+        <p class="light-hold__text light-hold__text--bottom">Vanta</p>
+        <div class="light-hold__flicker"></div>
+      </div>
+
+      <div class="layer film--rise" data-ph="rise">
+        <video class="film__media" data-film="rise" muted playsinline webkit-playsinline preload="auto" disablepictureinpicture tabindex="-1" aria-hidden="true" poster="media/headlight.png">
+          <source src="media/rise.mp4" type="video/mp4">
+        </video>
+      </div>
+
+      <div class="veil veil--white"></div>
+      <div class="veil veil--black"></div>
+    </div>
+  </section>
+
+  <!-- ============ BOOK (dead demo CTA) ============ -->
+  <section class="book" id="book">
+    <h2 data-reveal>Your car already knows the way</h2>
+    <p data-reveal>Demo site. The button goes nowhere on purpose.</p>
+    <a class="pill" href="#" data-dead data-reveal>Book a bay</a>
+  </section>
+
+  <footer class="footer">
+    <span>Vanta Exotic Auto Repair</span>
+    <span>Demo build. No real company. No real bookings.</span>
+    <span>Est. nowhere</span>
+  </footer>
+
+  <script src="js/motion.js"></script>
+</body>
+</html>

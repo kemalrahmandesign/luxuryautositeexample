@@ -2,13 +2,16 @@
 # .png entries are copied as-is; everything else is re-encoded to media/<name>.mp4
 # pan and morph are native-1080p Seedance std clips frame-locked to the stills
 # (pan: hero-front.png -> side.png, morph: side.png -> skeleton.png);
-# dive and emerge are the Veo 3.1 clips, warp and rise are Topaz enhancements
+# dive is the Veo 3.1 clip, warp is a Topaz enhancement;
+# emerge and rise are native-1080p Seedance std light scenes
+# (emerge: white -> colossal bulb pull-out -> headlight.png, played forward;
+#  rise: headlight.png -> pure black)
 pan https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260717_163004_f976f714-d1c4-4f3a-894b-0cd16c7cc3ab.mp4
 morph https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260717_163008_6885bc7f-2ef3-4fc8-bf17-84428226e09c.mp4
 dive https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260717_073349_35c8bd1e-79b0-499c-ba3e-3ad7aa2ef5a8.mp4
 warp https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260717_073327_782f6d82-86a5-4049-ba16-4951470dcf3c.mp4
-emerge https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260717_073343_ecc36bf3-a301-4152-a7c9-350e90666cb5.mp4
-rise https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260717_073337_628f2397-38c1-4e94-b489-a47e4e0693bf.mp4
+emerge https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260717_172130_ce00182b-5194-4dea-af29-cdf8a3eb52c2.mp4
+rise https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260717_172140_f60c8bd6-3f31-45aa-b23a-50a68385a298.mp4
 hero-front.png https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260716_224335_d8c03dc9-9df1-4309-bc9c-b3a7acc3d594.png
 side.png https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260716_223803_f30f901f-117d-4830-ac9c-7937b9b5e80f.png
 skeleton.png https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260716_224339_eba502c6-1cb4-4105-9e6c-772df6d5a7dd.png

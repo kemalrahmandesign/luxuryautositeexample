@@ -1,6 +1,7 @@
 /* Vanta Exotic Auto Repair: scroll motion engine.
-   One rAF loop drives every pinned scene. No scroll libraries by design:
-   the pin math below replaces them (see SCROLLSITEPLAYBOOK section 2). */
+   One rAF loop drives every pinned scene. GSAP (CDN) powers component
+   flourishes (magnetic CTA); the pin/scrub core stays hand-rolled per
+   SCROLLSITEPLAYBOOK section 2. */
 
 (function () {
   'use strict';
@@ -14,19 +15,13 @@
     return;
   }
 
-  /* Seam constants: keep in sync with css/tokens.css */
-  var SEAM_WHITE = '#edebe7';
-  var SEAM_CANVAS = '#0b0b0b';
-
   /* ---------- helpers ---------- */
 
   function clamp(v, a, b) { return v < a ? a : v > b ? b : v; }
-
-  /* Linear 0..1 window between two progress values */
   function fade(p, a, b) { return clamp((p - a) / (b - a), 0, 1); }
 
-  /* Piecewise-linear remap: scroll progress in, video time (0..1) out.
-     This is where slow / fast / slow pacing lives. Tune tables freely. */
+  /* Piecewise-linear remap: scroll progress in, video time out.
+     Slow / fast / slow pacing lives here. */
   function remap(p, table) {
     if (p <= table[0][0]) return table[0][1];
     for (var i = 1; i < table.length; i++) {
@@ -57,10 +52,9 @@
       var d = e.deltaY;
       if (e.deltaMode === 1) d *= 16;
       else if (e.deltaMode === 2) d *= window.innerHeight;
-      target = clamp(target + d, 0, maxScroll());
+      target = clamp(target + d * 1.1, 0, maxScroll());
     }, { passive: false });
 
-    /* Native scrolling (scrollbar, keys, find-in-page) resyncs the lerp */
     window.addEventListener('scroll', function () {
       if (Math.abs(window.scrollY - current) > 2) {
         target = current = window.scrollY;
@@ -84,10 +78,11 @@
 
   function makeFilm(video) {
     if (!video) return null;
-    var film = { el: video, vt: 0 };
+    var film = { el: video, vt: 0, missing: false };
     video.load();
     var src = video.querySelector('source');
     (src || video).addEventListener('error', function () {
+      film.missing = true;
       var pinEl = video.closest('[data-pin]');
       if (pinEl) pinEl.classList.add('film-missing');
     });
@@ -111,40 +106,59 @@
   /* ---------- pins ---------- */
 
   var pins = $$('[data-pin]').map(function (el) {
-    var pin = {
-      el: el,
-      name: el.getAttribute('data-pin-name'),
-      films: {}
-    };
+    var pin = { el: el, name: el.getAttribute('data-pin-name'), films: {} };
     $$('video[data-film]', el).forEach(function (v) {
       pin.films[v.getAttribute('data-film')] = makeFilm(v);
     });
     return pin;
   });
 
-  /* Per-clip pacing tables: [scroll fraction, video time fraction].
-     Middle segments steeper = faster playback under scroll. */
+  /* Per-clip pacing tables: [scroll fraction, video time fraction]. */
   var PACE = {
     pan:    [[0, 0], [0.25, 0.10], [0.70, 0.85], [1, 1]],
     morph:  [[0, 0], [0.20, 0.10], [0.75, 0.90], [1, 1]],
-    warp:   [[0, 0], [0.45, 0.30], [0.75, 0.55], [1, 1]],   /* end sped up on request */
-    emerge: [[0, 0], [0.40, 0.55], [1, 1]],
+    dive:   [[0, 0], [0.30, 0.12], [0.85, 0.95], [1, 1]],
+    warp:   [[0, 0], [0.45, 0.30], [0.75, 0.55], [1, 1]],
+    emerge: [[0, 0], [0.45, 0.55], [1, 1]],
     rise:   [[0, 0], [0.30, 0.15], [0.80, 0.90], [1, 1]]
   };
 
+  /* ---------- char splitter for the giant headers ---------- */
+
+  $$('[data-chars]').forEach(function (el) {
+    var text = el.textContent;
+    el.textContent = '';
+    var i = 0;
+    text.split('').forEach(function (ch) {
+      if (ch.trim() === '') { el.appendChild(document.createTextNode(' ')); return; }
+      var mask = document.createElement('span');
+      mask.className = 'char';
+      var inner = document.createElement('span');
+      inner.textContent = ch;
+      inner.style.setProperty('--d', (i * 26) + 'ms');
+      i++;
+      mask.appendChild(inner);
+      el.appendChild(mask);
+    });
+  });
+
   /* ---------- hero scene ---------- */
 
+  var navMark = $('.nav__mark');
   var heroRefs = null;
+
   function heroInit(pin) {
     heroRefs = {
       still: $('.hero__still', pin.el),
       pan: $('.hero__pan', pin.el),
       morph: $('.hero__morph', pin.el),
-      dive: $('.hero__dive', pin.el),
-      diveImg: $('.hero__dive .layer__media', pin.el),
+      skeleton: $('.hero__skeleton', pin.el),
+      skeletonImg: $('.hero__skeleton .layer__media', pin.el),
+      divefilm: $('.hero__divefilm', pin.el),
       lockup: $('.hero__lockup', pin.el),
+      lockupTitle: $('.hero__lockup h1', pin.el),
       flanks: $$('.hero__flank', pin.el),
-      cue: $('.hero__cue', pin.el),
+      cue: $('.scrollcue', pin.el),
       callouts: $('.callouts', pin.el),
       calloutsTitle: $('.callouts__title', pin.el),
       calloutCards: $$('.callout', pin.el),
@@ -157,132 +171,160 @@
       path.style.strokeDashoffset = len;
       path.dataset.len = len;
     });
+    if (heroRefs.skeletonImg) heroRefs.skeletonImg.style.transformOrigin = '58% 58%';
+    setTimeout(function () { heroRefs.lockupTitle.classList.add('chars-in'); }, 150);
   }
 
   function heroFrame(pin, p) {
     var r = heroRefs;
 
     /* Beat map:
-       0.00-0.10  still hold, wordmark, particles
-       0.10-0.34  pan film scrub
-       0.36-0.56  morph film scrub
-       0.56-0.74  skeleton hold: title, hairlines, cards
-       0.74-0.92  CSS dive into the skeleton still
-       0.86-1.00  white veil to the bone room */
+       0.00-0.08  hold: wordmark, CTA, cue, particles
+       0.07-0.33  pan film scrub
+       0.34-0.55  morph film scrub
+       0.55-0.74  skeleton hold: title, hairlines, cards
+       0.75-0.94  dive film scrub into white
+       0.92-1.00  white veil into the services room */
 
-    r.still.style.opacity = 1 - fade(p, 0.08, 0.12);
-    r.pan.style.opacity = fade(p, 0.08, 0.12) - fade(p, 0.35, 0.37);
-    seekFilm(pin.films.pan, remap(fade(p, 0.10, 0.34), PACE.pan));
+    r.still.style.opacity = 1 - fade(p, 0.07, 0.11);
+    r.pan.style.opacity = fade(p, 0.07, 0.11) - fade(p, 0.33, 0.36);
+    seekFilm(pin.films.pan, remap(fade(p, 0.08, 0.33), PACE.pan));
 
-    r.morph.style.opacity = fade(p, 0.35, 0.37) - fade(p, 0.57, 0.60);
-    seekFilm(pin.films.morph, remap(fade(p, 0.36, 0.56), PACE.morph));
+    r.morph.style.opacity = fade(p, 0.33, 0.36) - fade(p, 0.55, 0.58);
+    seekFilm(pin.films.morph, remap(fade(p, 0.34, 0.55), PACE.morph));
 
-    /* Lockup rides up and fades; corner mark snaps on (threshold) */
-    var lift = fade(p, 0.02, 0.12);
-    r.lockup.style.transform = 'translateY(' + (lift * -70) + 'px)';
-    r.lockup.style.opacity = 1 - fade(p, 0.05, 0.12);
-    r.cue.style.opacity = 1 - fade(p, 0.02, 0.06);
-    r.flanks.forEach(function (f) { f.style.opacity = 1 - fade(p, 0.05, 0.12); });
-    navMark.classList.toggle('is-on', p > 0.1);
+    var diveOk = pin.films.dive && !pin.films.dive.missing;
+    if (diveOk) {
+      r.skeleton.style.opacity = fade(p, 0.55, 0.58) - fade(p, 0.75, 0.78);
+      r.divefilm.style.opacity = fade(p, 0.75, 0.78);
+      seekFilm(pin.films.dive, remap(fade(p, 0.75, 0.94), PACE.dive));
+      r.skeletonImg.style.transform = 'none';
+    } else {
+      /* Fallback: flat CSS zoom on the still carries the dive */
+      r.skeleton.style.opacity = fade(p, 0.55, 0.58) - fade(p, 0.97, 1);
+      r.divefilm.style.opacity = 0;
+      var d = fade(p, 0.75, 0.93);
+      var dEase = d * d * (3 - 2 * d);
+      r.skeletonImg.style.transform = 'scale(' + (1 + dEase * 2.1) + ')';
+    }
+    r.veil.style.opacity = fade(p, 0.92, 0.98);
 
-    /* Skeleton hold: still image carries the frame from morph end onward */
-    r.dive.style.opacity = fade(p, 0.57, 0.60) - fade(p, 0.97, 1);
-    r.callouts.style.opacity = fade(p, 0.57, 0.60) - fade(p, 0.75, 0.78);
-    r.calloutsTitle.classList.toggle('is-on', p > 0.58 && p < 0.75);
-    var lineP = fade(p, 0.58, 0.68);
+    /* Hold UI rides up and fades */
+    var lift = fade(p, 0.02, 0.1);
+    r.lockup.style.transform = 'translateY(' + (lift * -80) + 'px)';
+    r.lockup.style.opacity = 1 - fade(p, 0.04, 0.1);
+    r.lockup.style.pointerEvents = p > 0.08 ? 'none' : '';
+    r.cue.style.opacity = 1 - fade(p, 0.015, 0.05);
+    r.flanks.forEach(function (f) { f.style.opacity = 1 - fade(p, 0.04, 0.1); });
+    navMark.classList.toggle('is-on', p > 0.08);
+
+    /* Skeleton callouts */
+    r.callouts.style.opacity = fade(p, 0.56, 0.59) - fade(p, 0.72, 0.75);
+    r.calloutsTitle.classList.toggle('chars-in', p > 0.565 && p < 0.75);
+    r.callouts.classList.toggle('cards-on', p > 0.58 && p < 0.75);
+    var lineP = fade(p, 0.575, 0.66);
     r.linePaths.forEach(function (path) {
       path.style.strokeDashoffset = (1 - lineP) * path.dataset.len;
     });
+    r.callouts.classList.toggle('lines-on', p > 0.64 && p < 0.75);
     r.calloutCards.forEach(function (card, i) {
-      var at = 0.60 + i * 0.03;
-      card.classList.toggle('is-on', p > at && p < 0.76);
+      card.classList.toggle('is-on', p > 0.585 + i * 0.022 && p < 0.73);
     });
 
-    /* The dive: flat CSS zoom, capped near 3x so the raster never pixelates */
-    var d = fade(p, 0.74, 0.92);
-    var dEase = d * d * (3 - 2 * d); /* smoothstep */
-    r.diveImg.style.transform = 'scale(' + (1 + dEase * 2.1) + ')';
-    r.veil.style.opacity = fade(p, 0.86, 0.94);
-
-    particlesActive = p < 0.12;
+    particlesActive = p < 0.1;
   }
 
-  /* ---------- reviews scene (bone room, horizontal) ---------- */
+  /* ---------- services scene: bone room, cards over the warp ---------- */
 
-  var revRefs = null;
-  function reviewsInit(pin) {
-    revRefs = {
-      head: $('.reviews__head', pin.el),
-      track: $('.reviews__track', pin.el)
-    };
-  }
+  var svcRefs = null;
 
-  function reviewsFrame(pin, p) {
-    var r = revRefs;
-    r.head.classList.toggle('is-in', p > 0.04);
-    var span = r.track.scrollWidth - window.innerWidth;
-    if (span > 0) {
-      var t = fade(p, 0.12, 0.92);
-      var e = t * t * (3 - 2 * t);
-      r.track.style.transform = 'translateX(' + (-span * e) + 'px)';
-    }
-  }
-
-  /* ---------- warp / headlight scene ---------- */
-
-  var warpRefs = null;
-  function warpInit(pin) {
-    warpRefs = {
+  function servicesInit(pin) {
+    svcRefs = {
+      content: $('.services__content', pin.el),
+      head: $('.services__head', pin.el),
+      headTitle: $('.services__head h2', pin.el),
+      cards: $$('.svc-card', pin.el),
       warp: $('.film--warp', pin.el),
       emerge: $('.film--emerge', pin.el),
       rise: $('.film--rise', pin.el),
       hold: $('.light-hold', pin.el),
       holdTexts: $$('.light-hold__text', pin.el),
-      whiteVeil: $('.veil--white', pin.el),
-      blackVeil: $('.veil--black', pin.el)
+      introH: $('.rise-intro h2', pin.el),
+      introP: $('.rise-intro p', pin.el)
     };
   }
 
-  function warpFrame(pin, p) {
-    var r = warpRefs;
+  function servicesFrame(pin, p) {
+    var r = svcRefs;
 
     /* Beat map:
-       0.00-0.05  hold on seam white (matches the bone room behind us)
-       0.03-0.32  warp film scrub (ends white)
-       0.30-0.60  emergence film scrubbed REVERSED with a code barrel roll
-       0.58-0.76  headlight hold: flicker, text on all sides
-       0.76-0.97  rise film scrub
-       0.95-1.00  settle to canvas black */
+       0.00-0.13  bone room: giant header + three cards
+       0.13-0.46  warp film runs behind the glass cards, cards exit
+       0.46-0.67  emergence film scrubbed reversed (roll baked in)
+       0.55-0.80  headlight hold: texts land, flicker runs
+       0.78-0.96  rise film; center intro reveals
+       0.955+     edge glow border takes over */
 
-    r.whiteVeil.style.opacity = 1 - fade(p, 0.03, 0.06);
+    r.headTitle.classList.toggle('chars-in', p > 0.015 && p < 0.5);
+    r.head.style.opacity = 1 - fade(p, 0.30, 0.37);
 
-    r.warp.style.opacity = fade(p, 0.0, 0.02) - fade(p, 0.31, 0.34);
-    seekFilm(pin.films.warp, remap(fade(p, 0.03, 0.32), PACE.warp));
-
-    /* Reversed: forward clip runs headlight to white, so reversed playback
-       unwinds white back into the headlight. The roll is ours. */
-    var ep = fade(p, 0.30, 0.60);
-    r.emerge.style.opacity = fade(p, 0.31, 0.34) - fade(p, 0.75, 0.78);
-    seekFilm(pin.films.emerge, remap(ep, PACE.emerge), true);
-    var unroll = 1 - ep;
-    var angle = unroll * -200;
-    var scale = 1 + unroll * 0.9;
-    r.emerge.style.transform = 'rotate(' + angle + 'deg) scale(' + scale + ')';
-
-    /* Texts land one by one while the headlight unrolls, scrub-locked */
-    r.holdTexts.forEach(function (el, i) {
-      var at = 0.42 + i * 0.06;
-      el.style.opacity = fade(p, at, at + 0.05) - fade(p, 0.73, 0.77);
+    r.cards.forEach(function (card, i) {
+      var inAt = 0.035 + i * 0.03;
+      var outAt = 0.35 + i * 0.025;
+      card.classList.toggle('is-on', p > inAt && p < outAt);
+      card.classList.toggle('is-off', p >= outAt);
     });
-    r.hold.classList.toggle('is-on', p > 0.5 && p < 0.74);
+    r.content.classList.toggle('over-warp', p > 0.15);
+    r.content.style.opacity = 1 - fade(p, 0.42, 0.46);
 
-    r.rise.style.opacity = fade(p, 0.75, 0.78);
-    seekFilm(pin.films.rise, remap(fade(p, 0.76, 0.97), PACE.rise));
+    r.warp.style.opacity = fade(p, 0.13, 0.17) - fade(p, 0.44, 0.47);
+    seekFilm(pin.films.warp, remap(fade(p, 0.15, 0.44), PACE.warp));
 
-    r.blackVeil.style.opacity = fade(p, 0.95, 1);
+    r.emerge.style.opacity = fade(p, 0.44, 0.47) - fade(p, 0.76, 0.79);
+    seekFilm(pin.films.emerge, remap(fade(p, 0.45, 0.67), PACE.emerge), true);
+
+    r.holdTexts.forEach(function (el, i) {
+      var at = 0.56 + i * 0.05;
+      el.style.opacity = fade(p, at, at + 0.04) - fade(p, 0.78, 0.81);
+    });
+    r.hold.classList.toggle('is-on', p > 0.6 && p < 0.97);
+
+    r.rise.style.opacity = fade(p, 0.76, 0.79);
+    seekFilm(pin.films.rise, remap(fade(p, 0.78, 0.96), PACE.rise));
+
+    var ih = fade(p, 0.85, 0.91);
+    r.introH.style.opacity = ih;
+    r.introH.style.transform = 'translateY(' + ((1 - ih) * 24) + 'px)';
+    var ip = fade(p, 0.88, 0.93);
+    r.introP.style.opacity = ip;
+    r.introP.style.transform = 'translateY(' + ((1 - ip) * 16) + 'px)';
+
+    servicesEndP = p;
   }
 
-  /* ---------- hero dust particles (canvas, time based) ---------- */
+  /* ---------- edge glow (white apple-style traveling border) ---------- */
+
+  var edgeGlow = $('.edge-glow');
+  var servicesEndP = 0;
+  var bookEl = $('#book');
+  var edgeOnAt = 0;
+
+  function edgeFrame(t) {
+    if (!edgeGlow) return;
+    var bookRect = bookEl.getBoundingClientRect();
+    var bookVisible = bookRect.top < window.innerHeight * 0.9 && bookRect.bottom > 0;
+    var on = servicesEndP > 0.955 || bookVisible;
+    if (on && !edgeGlow.classList.contains('is-on')) edgeOnAt = t;
+    edgeGlow.classList.toggle('is-on', on);
+    if (on) {
+      /* Starts with the bright segment at the top, where the light bar
+         landed, then travels the frame. */
+      var a = -14 + (t - edgeOnAt) * 0.02;
+      edgeGlow.style.setProperty('--edge-a', a + 'deg');
+    }
+  }
+
+  /* ---------- hero dust particles ---------- */
 
   var particlesActive = true;
   var pCanvas = $('.hero__particles');
@@ -299,8 +341,7 @@
     motes = [];
     for (var i = 0; i < 42; i++) {
       motes.push({
-        x: Math.random(),
-        y: Math.random(),
+        x: Math.random(), y: Math.random(),
         r: 0.4 + Math.random() * 1.1,
         s: 0.00012 + Math.random() * 0.0005,
         w: Math.random() * Math.PI * 2,
@@ -339,36 +380,25 @@
   }, { rootMargin: '0px 0px -12% 0px' });
   $$('[data-reveal]').forEach(function (el) { io.observe(el); });
 
-  /* Word mask for the reviews header: split text nodes only */
-  $$('[data-split]').forEach(function (el) {
-    var text = el.textContent.trim();
-    el.textContent = '';
-    text.split(/\s+/).forEach(function (word, i) {
-      var mask = document.createElement('span');
-      mask.className = 'word';
-      var inner = document.createElement('span');
-      inner.textContent = word;
-      inner.style.transitionDelay = (i * 70) + 'ms';
-      mask.appendChild(inner);
-      el.appendChild(mask);
-      el.appendChild(document.createTextNode(' '));
+  /* ---------- GSAP flourishes (guarded: site works without the CDN) ---------- */
+
+  if (window.gsap && finePointer) {
+    $$('[data-magnetic]').forEach(function (btn) {
+      var xTo = window.gsap.quickTo(btn, 'x', { duration: 0.4, ease: 'power3' });
+      var yTo = window.gsap.quickTo(btn, 'y', { duration: 0.4, ease: 'power3' });
+      btn.addEventListener('mousemove', function (e) {
+        var rect = btn.getBoundingClientRect();
+        xTo((e.clientX - rect.left - rect.width / 2) * 0.35);
+        yTo((e.clientY - rect.top - rect.height / 2) * 0.5);
+      });
+      btn.addEventListener('mouseleave', function () { xTo(0); yTo(0); });
     });
-  });
+  }
 
   /* ---------- init + main loop ---------- */
 
-  var navMark = $('.nav__mark');
-
-  var handlers = {
-    hero: heroFrame,
-    reviews: reviewsFrame,
-    warp: warpFrame
-  };
-  var inits = {
-    hero: heroInit,
-    reviews: reviewsInit,
-    warp: warpInit
-  };
+  var handlers = { hero: heroFrame, services: servicesFrame };
+  var inits = { hero: heroInit, services: servicesInit };
 
   pins.forEach(function (pin) {
     if (inits[pin.name]) inits[pin.name](pin);
@@ -378,8 +408,7 @@
   particlesSeed();
   window.addEventListener('resize', particlesResize);
 
-  /* Hide stills that have not been fetched by the media workflow yet.
-     The 404 can fire before this runs, so also check current state. */
+  /* Hide stills the media workflow has not fetched yet */
   $$('.layer img').forEach(function (img) {
     function missing() {
       img.style.visibility = 'hidden';
@@ -397,7 +426,7 @@
 
   function frame(t) {
     if (finePointer) {
-      current += (target - current) * 0.06;
+      current += (target - current) * 0.075;
       if (Math.abs(target - current) < 0.4) current = target;
       window.scrollTo(0, current);
     }
@@ -412,6 +441,7 @@
     }
 
     particlesFrame(t);
+    edgeFrame(t);
     requestAnimationFrame(frame);
   }
 

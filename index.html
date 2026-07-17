@@ -7,7 +7,7 @@
   <meta name="description" content="Demo showcase site. Exotic auto repair, presented in the dark.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400&family=Inter:wght@400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/tokens.css">
   <link rel="stylesheet" href="css/site.css">
 </head>
@@ -15,8 +15,16 @@
 
   <nav class="nav">
     <span class="nav__mark">VANTA</span>
-    <a class="pill" href="#book">Book</a>
+    <div class="nav__links">
+      <a class="nav__link" href="#services">Services</a>
+      <a class="nav__link" href="#reviews">Reviews</a>
+      <a class="pill pill--nav" href="#book">Book</a>
+    </div>
   </nav>
+
+  <!-- Apple-intelligence style edge glow, in white. Activated when the
+       light bar reaches the top of the frame. -->
+  <div class="edge-glow" aria-hidden="true"></div>
 
   <!-- ============ HERO: hold, pan, skeleton, dive to white ============ -->
   <section class="pin pin--hero" data-pin data-pin-name="hero">
@@ -38,94 +46,89 @@
         </video>
       </div>
 
-      <!-- Skeleton hold and dive share one still: CSS carries the deep zoom -->
-      <div class="layer hero__dive" data-ph="morph">
+      <!-- Skeleton hold: still carries the frame between morph and dive -->
+      <div class="layer hero__skeleton" data-ph="morph">
         <img class="layer__media" src="media/skeleton.png" alt="X-ray view of the car showing engine, brakes and suspension">
       </div>
 
+      <!-- The dive film: skeleton into white -->
+      <div class="layer hero__divefilm" data-ph="dive">
+        <video class="film__media" data-film="dive" muted playsinline webkit-playsinline preload="auto" disablepictureinpicture tabindex="-1" aria-hidden="true" poster="media/skeleton.png">
+          <source src="media/dive.mp4" type="video/mp4">
+        </video>
+      </div>
+
       <div class="layer callouts">
-        <h2 class="callouts__title">One car. Every discipline.</h2>
+        <div class="callouts__head">
+          <h2 class="callouts__title" data-chars>One car. Every discipline.</h2>
+          <p class="callouts__sub">Four of the two hundred things we do. If your car has it, we have the bay, the tool, and the hands for it.</p>
+        </div>
         <svg class="callouts__lines" viewBox="0 0 100 56.25" preserveAspectRatio="none" aria-hidden="true">
-          <path d="M 68 18 L 64 34 L 60 38" />
-          <path d="M 20 40 L 30 44 L 34 46" />
-          <path d="M 22 22 L 36 34 L 40 36" />
-          <path d="M 80 42 L 70 42 L 62 40" />
+          <path d="M 76 14 H 70 L 64 33" />
+          <path d="M 25 12 H 32 L 40 30" />
+          <path d="M 24 34 H 30 L 35 40" />
+          <path d="M 72 38 H 60 L 49 28" />
+          <circle cx="64" cy="33" r="0.5" />
+          <circle cx="40" cy="30" r="0.5" />
+          <circle cx="35" cy="40" r="0.5" />
+          <circle cx="49" cy="28" r="0.5" />
         </svg>
         <aside class="callout" style="top: 16vh; right: 8vw;">
           <span class="badge">01</span>
           <h3>Engine</h3>
           <p>Flat-six out, rebuilt, dyno verified. Factory tolerances or tighter.</p>
         </aside>
-        <aside class="callout" style="top: 58vh; left: 6vw;">
+        <aside class="callout" style="top: 14vh; left: 8vw;">
           <span class="badge">02</span>
-          <h3>Brakes</h3>
-          <p>Carbon ceramic service, rotors, calipers, lines and fluid.</p>
-        </aside>
-        <aside class="callout" style="top: 18vh; left: 8vw;">
-          <span class="badge">03</span>
           <h3>Suspension</h3>
           <p>Dampers, geometry and corner balancing to race spec.</p>
+        </aside>
+        <aside class="callout" style="top: 56vh; left: 6vw;">
+          <span class="badge">03</span>
+          <h3>Brakes</h3>
+          <p>Carbon ceramic service, rotors, calipers, lines and fluid.</p>
         </aside>
         <aside class="callout" style="top: 62vh; right: 10vw;">
           <span class="badge">04</span>
           <h3>Body</h3>
           <p>Panel, paint and aero. Blank surfaces, perfect gaps.</p>
         </aside>
-        <aside class="callout callout--more" style="top: 78vh; right: 10vw;">
-          <span class="badge">And more</span>
+        <aside class="callout callout--more" style="top: 80vh; right: 10vw;">
+          <span class="badge badge--ember">+ 196 more</span>
         </aside>
       </div>
 
       <canvas class="hero__particles" aria-hidden="true"></canvas>
 
       <header class="hero__lockup">
-        <h1>Vanta</h1>
+        <h1 data-chars>Vanta</h1>
         <p>Exotic auto repair</p>
+        <a class="cta" href="#book" data-magnetic>
+          <span class="cta__label">Book a bay</span>
+          <span class="cta__fill" aria-hidden="true"></span>
+        </a>
       </header>
       <span class="hero__flank hero__flank--left">Precision is not optional</span>
       <span class="hero__flank hero__flank--right">Exotics only</span>
-      <span class="hero__cue">Scroll</span>
+
+      <div class="scrollcue" aria-hidden="true">
+        <div class="scrollcue__ring">
+          <svg viewBox="0 0 64 64">
+            <g class="scrollcue__dots">
+              <circle cx="32" cy="4" r="1.4"/><circle cx="46" cy="7.8" r="1.4"/><circle cx="56.2" cy="18" r="1.4"/><circle cx="60" cy="32" r="1.4"/><circle cx="56.2" cy="46" r="1.4"/><circle cx="46" cy="56.2" r="1.4"/><circle cx="32" cy="60" r="1.4"/><circle cx="18" cy="56.2" r="1.4"/><circle cx="7.8" cy="46" r="1.4"/><circle cx="4" cy="32" r="1.4"/><circle cx="7.8" cy="18" r="1.4"/><circle cx="18" cy="7.8" r="1.4"/>
+            </g>
+            <path class="scrollcue__chevron" d="M 24 28 L 32 37 L 40 28" />
+          </svg>
+        </div>
+        <span class="scrollcue__label">Scroll</span>
+      </div>
 
       <div class="veil veil--white"></div>
     </div>
   </section>
 
-  <!-- ============ WHITE ROOM: reviews, horizontal ============ -->
-  <section class="pin pin--reviews" data-pin data-pin-name="reviews">
-    <div class="pin__stage">
-      <h2 class="reviews__head" data-split>Word travels fast</h2>
-      <div class="reviews__track">
-        <article class="review">
-          <span class="badge">GT3 RS</span>
-          <p>"Three shops refused to open the engine. Vanta rebuilt it and handed me a dyno sheet better than delivery spec."</p>
-          <footer>M. Castellanos</footer>
-        </article>
-        <article class="review">
-          <span class="badge">Huracan Evo</span>
-          <p>"They found a wiring fault two dealerships missed. Car has never run cleaner."</p>
-          <footer>D. Okafor</footer>
-        </article>
-        <article class="review">
-          <span class="badge">720S</span>
-          <p>"Corner balanced and aligned for the track. The difference on turn-in is night and day."</p>
-          <footer>S. Lindqvist</footer>
-        </article>
-        <article class="review">
-          <span class="badge">911 Turbo S</span>
-          <p>"Ceramic brake service done in a day, with photos of every step. Nobody else works like this."</p>
-          <footer>A. Reyes</footer>
-        </article>
-        <article class="review">
-          <span class="badge">Aventador</span>
-          <p>"Paint correction after a bad wrap removal. It looks deeper than factory. Unreal."</p>
-          <footer>K. Tanaka</footer>
-        </article>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ WARP: white, streaks, headlight ============ -->
-  <section class="pin pin--warp" data-pin data-pin-name="warp">
+  <!-- ============ SERVICES: bone room, cards over the warp ============ -->
+  <section class="pin pin--services" data-pin data-pin-name="services" id="services">
     <div class="pin__stage">
 
       <div class="layer film--warp" data-ph="warp">
@@ -140,38 +143,88 @@
         </video>
       </div>
 
-      <div class="layer is-front light-hold">
-        <p class="light-hold__text light-hold__text--top">Light is a component too</p>
-        <p class="light-hold__text light-hold__text--left">Factory certified</p>
-        <p class="light-hold__text light-hold__text--right">OEM parts only</p>
-        <p class="light-hold__text light-hold__text--bottom">Vanta</p>
-        <div class="light-hold__flicker"></div>
-      </div>
-
       <div class="layer film--rise" data-ph="rise">
         <video class="film__media" data-film="rise" muted playsinline webkit-playsinline preload="auto" disablepictureinpicture tabindex="-1" aria-hidden="true" poster="media/headlight.png">
           <source src="media/rise.mp4" type="video/mp4">
         </video>
       </div>
 
+      <div class="layer is-front services__content">
+        <header class="services__head">
+          <h2 data-chars>What we do</h2>
+          <p>Three doors. Everything behind them.</p>
+        </header>
+        <div class="services__cards">
+          <article class="svc-card">
+            <span class="badge">01</span>
+            <h3>Performance</h3>
+            <p>Engine-out rebuilds, forced induction, dyno tuning. Leave with numbers worth framing.</p>
+            <footer>Engine / Trans / Exhaust / Tune</footer>
+          </article>
+          <article class="svc-card">
+            <span class="badge">02</span>
+            <h3>Restoration</h3>
+            <p>Body, paint, interior, glass. Finishes that read deeper than the factory ever went.</p>
+            <footer>Body / Paint / Trim / Glass</footer>
+          </article>
+          <article class="svc-card">
+            <span class="badge">03</span>
+            <h3>Protection</h3>
+            <p>Film, ceramic, alignment, storage. The miles you do not drive should cost you nothing.</p>
+            <footer>PPF / Ceramic / Align / Store</footer>
+          </article>
+        </div>
+      </div>
+
+      <div class="layer is-front light-hold">
+        <p class="light-hold__text light-hold__text--top">The details are the job</p>
+        <p class="light-hold__text light-hold__text--left">Factory certified</p>
+        <p class="light-hold__text light-hold__text--right">OEM parts only</p>
+        <p class="light-hold__text light-hold__text--bottom">Vanta</p>
+        <div class="light-hold__flicker"></div>
+      </div>
+
+      <div class="layer is-front rise-intro">
+        <h2>Ready when you are</h2>
+        <p>Booking is one scroll away</p>
+      </div>
+
       <div class="veil veil--white"></div>
-      <div class="veil veil--black"></div>
     </div>
   </section>
 
-  <!-- ============ BOOK (dead demo CTA) ============ -->
+  <!-- ============ BOOK ============ -->
   <section class="book" id="book">
-    <h2 data-reveal>Your car already knows the way</h2>
-    <p data-reveal>Demo site. The button goes nowhere on purpose.</p>
-    <a class="pill" href="#" data-dead data-reveal>Book a bay</a>
+    <div class="book__reviews" id="reviews">
+      <blockquote data-reveal>
+        <p>"Three shops refused to open the engine. Vanta rebuilt it and handed me a dyno sheet better than delivery spec."</p>
+        <footer>M. Castellanos, GT3 RS</footer>
+      </blockquote>
+      <blockquote data-reveal>
+        <p>"They found the wiring fault two dealerships missed. The car has never run cleaner."</p>
+        <footer>D. Okafor, Huracan Evo</footer>
+      </blockquote>
+    </div>
+    <h2 data-reveal data-chars>Book your bay</h2>
+    <a class="cta cta--dark" href="#" data-dead data-magnetic data-reveal>
+      <span class="cta__label">Book now</span>
+      <span class="cta__fill" aria-hidden="true"></span>
+    </a>
+    <p class="book__contact" data-reveal>
+      <span>+1 (703) 555-0147</span>
+      <span>21850 Vanta Way, Sterling, VA 20166</span>
+    </p>
+    <p class="book__note" data-reveal>Demo site. The button goes nowhere on purpose.</p>
   </section>
 
   <footer class="footer">
     <span>Vanta Exotic Auto Repair</span>
+    <span>+1 (703) 555-0147</span>
+    <span>21850 Vanta Way, Sterling, VA 20166</span>
     <span>Demo build. No real company. No real bookings.</span>
-    <span>Est. nowhere</span>
   </footer>
 
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.13.0/dist/gsap.min.js"></script>
   <script src="js/motion.js"></script>
 </body>
 </html>

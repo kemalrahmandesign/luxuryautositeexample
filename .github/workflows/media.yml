@@ -49,3 +49,5 @@ jobs:
           git diff --cached --quiet && exit 0
           git commit -m "media: fetch and re-encode scrub films (-g 4)"
           git push
+
+# touch: force workflow registration

@@ -289,7 +289,10 @@ img, video { display: block; max-width: 100%; }
 
 /* ---------- Warp / headlight ---------- */
 
-.pin--warp .pin__stage { background: var(--seam-canvas); }
+/* Pure black to match the films' void: the stage must never read as a
+   different shade behind a rotating video frame */
+.pin--warp .pin__stage { background: #000000; }
+.film--warp, .film--emerge, .film--rise { background: #000000; }
 
 .film--emerge { transform-origin: 50% 50%; }
 
@@ -299,9 +302,7 @@ img, video { display: block; max-width: 100%; }
   font-size: var(--text-body-sm);
   color: var(--color-ash);
   opacity: 0;
-  transition: opacity 0.5s ease;
 }
-.light-hold.is-on .light-hold__text { opacity: 1; }
 .light-hold__text--top { top: 12vh; left: 0; right: 0; text-align: center; font-size: var(--text-heading); color: var(--color-pure-white); }
 .light-hold__text--left { left: var(--spacing-40); top: 50%; transform: translateY(-50%); }
 .light-hold__text--right { right: var(--spacing-40); top: 50%; transform: translateY(-50%); }

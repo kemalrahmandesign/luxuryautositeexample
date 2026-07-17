@@ -237,6 +237,7 @@
       emerge: $('.film--emerge', pin.el),
       rise: $('.film--rise', pin.el),
       hold: $('.light-hold', pin.el),
+      holdTexts: $$('.light-hold__text', pin.el),
       whiteVeil: $('.veil--white', pin.el),
       blackVeil: $('.veil--black', pin.el)
     };
@@ -268,7 +269,12 @@
     var scale = 1 + unroll * 0.9;
     r.emerge.style.transform = 'rotate(' + angle + 'deg) scale(' + scale + ')';
 
-    r.hold.classList.toggle('is-on', p > 0.58 && p < 0.74);
+    /* Texts land one by one while the headlight unrolls, scrub-locked */
+    r.holdTexts.forEach(function (el, i) {
+      var at = 0.42 + i * 0.06;
+      el.style.opacity = fade(p, at, at + 0.05) - fade(p, 0.73, 0.77);
+    });
+    r.hold.classList.toggle('is-on', p > 0.5 && p < 0.74);
 
     r.rise.style.opacity = fade(p, 0.75, 0.78);
     seekFilm(pin.films.rise, remap(fade(p, 0.76, 0.97), PACE.rise));

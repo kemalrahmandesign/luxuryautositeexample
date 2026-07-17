@@ -1,11 +1,12 @@
 # name url
 # .png entries are copied as-is; everything else is re-encoded to media/<name>.mp4
-# sources are the 1080p bytedance upscales of the approved draft clips
-pan https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260717_021707_b239a959-425e-4a05-8bf3-d003af330f81.mp4
-morph https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260717_021824_e8f03b9b-451f-4afb-a34f-f1d3ca8f6a68.mp4
-warp https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260717_021828_a29dbcf0-c55b-47fd-bea8-f92afee8f995.mp4
-emerge https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260717_021831_6813f5c5-63a1-4f8c-b377-0c4fa56fd285.mp4
-rise https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260717_021834_d8e69c56-576a-43c2-a5eb-2791433e2ed9.mp4
+# sources are true-1080p Topaz enhancements; dive and emerge are the Veo 3.1 clips
+pan https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260717_072238_d7a60b6a-bfa4-491d-b689-a427c5f724fe.mp4
+morph https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260717_073322_520b75de-d38e-4ddb-864f-95303297d780.mp4
+dive https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260717_073349_35c8bd1e-79b0-499c-ba3e-3ad7aa2ef5a8.mp4
+warp https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260717_073327_782f6d82-86a5-4049-ba16-4951470dcf3c.mp4
+emerge https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260717_073343_ecc36bf3-a301-4152-a7c9-350e90666cb5.mp4
+rise https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260717_073337_628f2397-38c1-4e94-b489-a47e4e0693bf.mp4
 hero-front.png https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260716_224335_d8c03dc9-9df1-4309-bc9c-b3a7acc3d594.png
 side.png https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260716_223803_f30f901f-117d-4830-ac9c-7937b9b5e80f.png
 skeleton.png https://d8j0ntlcm91z4.cloudfront.net/user_3FE0Xjh16Sot9aoCPbOwO7vYemS/hf_20260716_224339_eba502c6-1cb4-4105-9e6c-772df6d5a7dd.png

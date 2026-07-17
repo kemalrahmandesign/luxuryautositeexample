@@ -120,8 +120,10 @@
     dive:   [[0, 0], [0.30, 0.12], [0.85, 0.95], [1, 1]],
     warp:   [[0, 0], [0.45, 0.30], [0.75, 0.55], [1, 1]],
     /* emerge: linger inside the bulb early (macro detail crawl), then let
-       the pull-back accelerate, settling softly onto the signature */
-    emerge: [[0, 0], [0.4, 0.18], [0.75, 0.62], [1, 1]],
+       the pull-back accelerate. Ends at 0.647 of the clip: that frame
+       matches rise's first frame (verified by PSNR scan), so the hold
+       hand-off does not jump in scale. */
+    emerge: [[0, 0], [0.4, 0.15], [0.8, 0.52], [1, 0.647]],
     rise:   [[0, 0], [0.30, 0.15], [0.80, 0.90], [1, 1]]
   };
 

@@ -36,10 +36,24 @@ jobs:
                 ;;
               *)
                 curl -fsSL "$url" -o /tmp/src.mp4
-                # scale to 1080p, denoise, deband, crush noisy near-blacks to true black
+                # Two encode profiles:
+                #  - detail clips (car body, x-ray internals): light denoise so
+                #    fine silver detail survives, gentle black floor
+                #  - dark light-scene clips: strong denoise/deband and a hard
+                #    crush of noisy near-blacks to true black
+                case "$name" in
+                  emerge|rise)
+                    VF="scale=1920:1080:flags=lanczos,hqdn3d=2:1.5:4:3,deband=1thr=0.013:2thr=0.013:3thr=0.013:range=12:blur=1,colorlevels=rimin=0.02:gimin=0.02:bimin=0.02"
+                    CRF=18
+                    ;;
+                  *)
+                    VF="scale=1920:1080:flags=lanczos,hqdn3d=1:0.8:2:2,deband=1thr=0.01:2thr=0.01:3thr=0.01:range=10:blur=1,colorlevels=rimin=0.012:gimin=0.012:bimin=0.012"
+                    CRF=17
+                    ;;
+                esac
                 ffmpeg -nostdin -y -i /tmp/src.mp4 -an \
-                  -vf "scale=1920:1080:flags=lanczos,hqdn3d=2:1.5:4:3,deband=1thr=0.013:2thr=0.013:3thr=0.013:range=12:blur=1,colorlevels=rimin=0.02:gimin=0.02:bimin=0.02" \
-                  -c:v libx264 -preset slow -crf 19 -g 4 \
+                  -vf "$VF" \
+                  -c:v libx264 -preset slow -crf "$CRF" -g 4 \
                   -pix_fmt yuv420p -movflags +faststart \
                   "media/$name.mp4"
                 ;;

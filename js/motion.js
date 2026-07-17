@@ -95,10 +95,10 @@
     var el = film.el;
     if (el.readyState < 1 || !el.duration) return;
     var t = (reverse ? 1 - t01 : t01) * (el.duration - 0.05);
-    film.vt += (t - film.vt) * 0.22;
+    film.vt += (t - film.vt) * 0.3;
     if (el.seeking) return;
     var delta = Math.abs(el.currentTime - film.vt);
-    if (delta < 1 / 30) return;
+    if (delta < 1 / 60) return;
     if (delta > 0.5 && typeof el.fastSeek === 'function') el.fastSeek(film.vt);
     else el.currentTime = film.vt;
   }
@@ -119,7 +119,9 @@
     morph:  [[0, 0], [0.20, 0.10], [0.75, 0.90], [1, 1]],
     dive:   [[0, 0], [0.30, 0.12], [0.85, 0.95], [1, 1]],
     warp:   [[0, 0], [0.45, 0.30], [0.75, 0.55], [1, 1]],
-    emerge: [[0, 0], [0.45, 0.55], [1, 1]],
+    /* emerge: linger inside the bulb early (macro detail crawl), then let
+       the pull-back accelerate, settling softly onto the signature */
+    emerge: [[0, 0], [0.4, 0.18], [0.75, 0.62], [1, 1]],
     rise:   [[0, 0], [0.30, 0.15], [0.80, 0.90], [1, 1]]
   };
 
@@ -186,18 +188,21 @@
        0.75-0.94  dive film scrub into white
        0.92-1.00  white veil into the services room */
 
-    r.still.style.opacity = 1 - fade(p, 0.07, 0.11);
-    r.pan.style.opacity = fade(p, 0.07, 0.11) - fade(p, 0.33, 0.36);
-    seekFilm(pin.films.pan, remap(fade(p, 0.08, 0.33), PACE.pan));
+    /* Clips are frame-locked to their neighbours, so hand-offs are tight
+       cuts placed AFTER the outgoing scrub has fully settled — long soft
+       crossfades between two moving films read as double exposure. */
+    r.still.style.opacity = 1 - fade(p, 0.07, 0.1);
+    r.pan.style.opacity = fade(p, 0.07, 0.1) - fade(p, 0.335, 0.35);
+    seekFilm(pin.films.pan, remap(fade(p, 0.08, 0.31), PACE.pan));
 
-    r.morph.style.opacity = fade(p, 0.33, 0.36) - fade(p, 0.55, 0.58);
-    seekFilm(pin.films.morph, remap(fade(p, 0.34, 0.55), PACE.morph));
+    r.morph.style.opacity = fade(p, 0.335, 0.35) - fade(p, 0.555, 0.57);
+    seekFilm(pin.films.morph, remap(fade(p, 0.36, 0.53), PACE.morph));
 
     var diveOk = pin.films.dive && !pin.films.dive.missing;
     if (diveOk) {
-      r.skeleton.style.opacity = fade(p, 0.55, 0.58) - fade(p, 0.75, 0.78);
-      r.divefilm.style.opacity = fade(p, 0.75, 0.78);
-      seekFilm(pin.films.dive, remap(fade(p, 0.75, 0.94), PACE.dive));
+      r.skeleton.style.opacity = fade(p, 0.555, 0.57) - fade(p, 0.75, 0.77);
+      r.divefilm.style.opacity = fade(p, 0.75, 0.77);
+      seekFilm(pin.films.dive, remap(fade(p, 0.77, 0.94), PACE.dive));
       r.skeletonImg.style.transform = 'none';
     } else {
       /* Fallback: flat CSS zoom on the still carries the dive */
@@ -258,10 +263,11 @@
     var r = svcRefs;
 
     /* Beat map:
-       0.00-0.13  bone room: giant header + three cards
-       0.13-0.46  warp film runs behind the glass cards, cards exit
-       0.46-0.67  emergence film scrubbed reversed (roll baked in)
-       0.55-0.80  headlight hold: texts land, flicker runs
+       0.00-0.44  warp film runs from the first pixel (it opens on the same
+                  warm white the dive ends on); glass cards ride on top
+       0.44-0.74  emergence film, played FORWARD: slow colossal pull-back
+                  out of the bulb, ending on the headlight signature
+       0.62-0.80  headlight hold: texts land, flicker runs
        0.78-0.96  rise film; center intro reveals
        0.955+     edge glow border takes over */
 
@@ -274,20 +280,21 @@
       card.classList.toggle('is-on', p > inAt && p < outAt);
       card.classList.toggle('is-off', p >= outAt);
     });
-    r.content.classList.toggle('over-warp', p > 0.15);
+    r.content.classList.add('over-warp');
     r.content.style.opacity = 1 - fade(p, 0.42, 0.46);
 
-    r.warp.style.opacity = fade(p, 0.13, 0.17) - fade(p, 0.44, 0.47);
-    seekFilm(pin.films.warp, remap(fade(p, 0.15, 0.44), PACE.warp));
+    r.warp.style.opacity = 1 - fade(p, 0.44, 0.46);
+    seekFilm(pin.films.warp, remap(fade(p, 0.0, 0.43), PACE.warp));
 
-    r.emerge.style.opacity = fade(p, 0.44, 0.47) - fade(p, 0.76, 0.79);
-    seekFilm(pin.films.emerge, remap(fade(p, 0.45, 0.67), PACE.emerge), true);
+    /* Warp ends white, emerge begins white: a hard-cut hand-off. */
+    r.emerge.style.opacity = fade(p, 0.44, 0.46) - fade(p, 0.77, 0.79);
+    seekFilm(pin.films.emerge, remap(fade(p, 0.45, 0.74), PACE.emerge));
 
     r.holdTexts.forEach(function (el, i) {
-      var at = 0.56 + i * 0.05;
+      var at = 0.62 + i * 0.045;
       el.style.opacity = fade(p, at, at + 0.04) - fade(p, 0.78, 0.81);
     });
-    r.hold.classList.toggle('is-on', p > 0.6 && p < 0.97);
+    r.hold.classList.toggle('is-on', p > 0.64 && p < 0.97);
 
     r.rise.style.opacity = fade(p, 0.76, 0.79);
     seekFilm(pin.films.rise, remap(fade(p, 0.78, 0.96), PACE.rise));

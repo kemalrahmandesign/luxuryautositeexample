@@ -496,8 +496,8 @@ img, video { display: block; max-width: 100%; }
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: 16px;
-  padding: 2px;
+  border-radius: 18px;
+  padding: 5px;
   background: conic-gradient(from var(--edge-a) at 50% 50%,
     transparent 0deg,
     rgba(255, 255, 255, 0.95) 14deg,
@@ -511,7 +511,7 @@ img, video { display: block; max-width: 100%; }
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: exclude;
 }
-.edge-glow::after { filter: blur(12px); }
+.edge-glow::after { filter: blur(18px); }
 
 /* ---------- Book / footer ---------- */
 

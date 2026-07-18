@@ -30,31 +30,12 @@
   <section class="pin pin--hero" data-pin data-pin-name="hero">
     <div class="pin__stage">
 
-      <div class="layer is-front hero__still" data-ph="pan">
-        <img class="layer__media" src="media/hero-front.png" alt="Porsche 911 GT3 RS front view in a black void">
-      </div>
-
-      <div class="layer hero__pan" data-ph="pan">
-        <video class="film__media" data-film="pan" muted playsinline webkit-playsinline preload="auto" disablepictureinpicture tabindex="-1" aria-hidden="true" poster="media/hero-front.png">
-          <source src="media/pan.mp4" type="video/mp4">
-        </video>
-      </div>
-
-      <div class="layer hero__morph" data-ph="morph">
-        <video class="film__media" data-film="morph" muted playsinline webkit-playsinline preload="auto" disablepictureinpicture tabindex="-1" aria-hidden="true" poster="media/side.png">
-          <source src="media/morph.mp4" type="video/mp4">
-        </video>
-      </div>
-
-      <!-- Skeleton hold: still carries the frame between morph and dive -->
-      <div class="layer hero__skeleton" data-ph="morph">
-        <img class="layer__media" src="media/skeleton.png" alt="X-ray view of the car showing engine, brakes and suspension">
-      </div>
-
-      <!-- The dive film: skeleton into white -->
-      <div class="layer hero__divefilm" data-ph="dive">
-        <video class="film__media" data-film="dive" muted playsinline webkit-playsinline preload="auto" disablepictureinpicture tabindex="-1" aria-hidden="true" poster="media/skeleton.png">
-          <source src="media/dive.mp4" type="video/mp4">
+      <!-- One continuous film: front hold, orbit to profile, x-ray morph,
+           skeleton hold, dive to white. Joins are baked-in dissolves with
+           registered frames, so nothing shifts at runtime. -->
+      <div class="layer is-front hero__filmlayer" data-ph="pan">
+        <video class="film__media" data-film="hero" muted playsinline webkit-playsinline preload="auto" disablepictureinpicture tabindex="-1" aria-hidden="true">
+          <source src="media/hero.mp4" type="video/mp4">
         </video>
       </div>
 
@@ -131,21 +112,12 @@
   <section class="pin pin--services" data-pin data-pin-name="services" id="services">
     <div class="pin__stage">
 
-      <div class="layer film--warp" data-ph="warp">
-        <video class="film__media" data-film="warp" muted playsinline webkit-playsinline preload="auto" disablepictureinpicture tabindex="-1" aria-hidden="true">
-          <source src="media/warp.mp4" type="video/mp4">
-        </video>
-      </div>
-
-      <div class="layer film--emerge" data-ph="emerge">
-        <video class="film__media" data-film="emerge" data-scrub-reverse muted playsinline webkit-playsinline preload="auto" disablepictureinpicture tabindex="-1" aria-hidden="true" poster="media/headlight.png">
-          <source src="media/emerge.mp4" type="video/mp4">
-        </video>
-      </div>
-
-      <div class="layer film--rise" data-ph="rise">
-        <video class="film__media" data-film="rise" muted playsinline webkit-playsinline preload="auto" disablepictureinpicture tabindex="-1" aria-hidden="true" poster="media/headlight.png">
-          <source src="media/rise.mp4" type="video/mp4">
+      <!-- One continuous film: warp streaks, barrel-roll emergence onto the
+           headlight, hold, rise into the streak. Lazy-loaded after the hero
+           film is safely buffering. -->
+      <div class="layer is-front svc__filmlayer" data-ph="warp">
+        <video class="film__media" data-film="svc" data-lazy muted playsinline webkit-playsinline preload="none" disablepictureinpicture tabindex="-1" aria-hidden="true">
+          <source src="media/svc.mp4" type="video/mp4">
         </video>
       </div>
 

@@ -78,8 +78,8 @@
 
   function makeFilm(video) {
     if (!video) return null;
-    var film = { el: video, vt: 0, missing: false };
-    video.load();
+    var film = { el: video, vt: 0, missing: false, lazy: video.hasAttribute('data-lazy') };
+    if (!film.lazy) video.load();
     var src = video.querySelector('source');
     (src || video).addEventListener('error', function () {
       film.missing = true;
@@ -89,13 +89,21 @@
     return film;
   }
 
-  /* All four guards exist because their absence caused visible stutter */
-  function seekFilm(film, t01, reverse) {
+  function wakeFilm(film) {
+    if (!film || !film.lazy) return;
+    film.lazy = false;
+    film.el.preload = 'auto';
+    film.el.load();
+  }
+
+  /* Seek to an absolute time in seconds. All four guards exist because
+     their absence caused visible stutter. */
+  function seekFilm(film, tSec) {
     if (!film) return;
     var el = film.el;
     if (el.readyState < 1 || !el.duration) return;
-    var t = (reverse ? 1 - t01 : t01) * (el.duration - 0.05);
-    film.vt += (t - film.vt) * 0.3;
+    var t = clamp(tSec, 0, el.duration - 0.05);
+    film.vt += (t - film.vt) * 0.35;
     if (el.seeking) return;
     var delta = Math.abs(el.currentTime - film.vt);
     if (delta < 1 / 60) return;
@@ -113,18 +121,50 @@
     return pin;
   });
 
-  /* Per-clip pacing tables: [scroll fraction, video time fraction]. */
-  var PACE = {
-    pan:    [[0, 0], [0.25, 0.10], [0.70, 0.85], [1, 1]],
-    morph:  [[0, 0], [0.20, 0.10], [0.75, 0.90], [1, 1]],
-    dive:   [[0, 0], [0.30, 0.12], [0.85, 0.95], [1, 1]],
-    warp:   [[0, 0], [0.45, 0.30], [0.75, 0.55], [1, 1]],
-    /* emerge: linger inside the bulb early (macro detail crawl), then let
-       the pull-back accelerate. Ends at 0.647 of the clip: that frame
-       matches rise's first frame (verified by PSNR scan), so the hold
-       hand-off does not jump in scale. */
-    emerge: [[0, 0], [0.4, 0.15], [0.8, 0.52], [1, 0.647]],
-    rise:   [[0, 0], [0.30, 0.15], [0.80, 0.90], [1, 1]]
+  /* The services film stays cold until the hero film is safely buffering
+     (or the user is halfway through the hero) so first paint is fast. */
+  function pinByName(name) {
+    for (var i = 0; i < pins.length; i++) if (pins[i].name === name) return pins[i];
+    return null;
+  }
+  var heroPin = pinByName('hero');
+  var svcPin = pinByName('services');
+  function wakeSvc() { if (svcPin) wakeFilm(svcPin.films.svc); }
+  if (heroPin && heroPin.films.hero) {
+    heroPin.films.hero.el.addEventListener('canplaythrough', wakeSvc, { once: true });
+    setTimeout(wakeSvc, 12000); /* belt and braces if the event never fires */
+  } else {
+    wakeSvc();
+  }
+
+  /* Scene timelines: [scroll fraction, film time in seconds].
+     Each scene is ONE continuous 19.33s film with baked, registered
+     dissolves at the joins (built by scripts in the media workflow).
+     Plateaus in the table are the holds.
+
+     hero.mp4: 0-7.69 pan orbit | 7.69-8.04 dissolve | -15.38 x-ray morph
+               | 15.38-15.73 dissolve | -19.33 dive to white
+     svc.mp4:  0-7.69 warp streaks | 7.69-8.04 dissolve | -13.34 barrel
+               roll onto headlight | 13.34-13.69 dissolve | -19.33 rise */
+  var TIMELINE = {
+    hero: [
+      [0.00, 0],      /* front hold: wordmark, CTA, cue */
+      [0.08, 0],
+      [0.14, 1.4],    /* orbit starts unhurried */
+      [0.31, 7.55],
+      [0.55, 15.30],  /* morph plays through the first dissolve */
+      [0.75, 15.30],  /* skeleton hold: callouts land on a parked frame */
+      [0.94, 19.28],  /* dive to white */
+      [1.00, 19.28]
+    ],
+    svc: [
+      [0.00, 0],      /* streaks run from the first pixel after the white */
+      [0.43, 7.55],
+      [0.67, 13.25],  /* barrel roll lands on the headlight */
+      [0.78, 13.25],  /* headlight hold: texts + flicker */
+      [0.96, 19.28],  /* rise into the streak, out to black */
+      [1.00, 19.28]
+    ]
   };
 
   /* ---------- char splitter for the giant headers ---------- */
@@ -153,12 +193,6 @@
 
   function heroInit(pin) {
     heroRefs = {
-      still: $('.hero__still', pin.el),
-      pan: $('.hero__pan', pin.el),
-      morph: $('.hero__morph', pin.el),
-      skeleton: $('.hero__skeleton', pin.el),
-      skeletonImg: $('.hero__skeleton .layer__media', pin.el),
-      divefilm: $('.hero__divefilm', pin.el),
       lockup: $('.hero__lockup', pin.el),
       lockupTitle: $('.hero__lockup h1', pin.el),
       flanks: $$('.hero__flank', pin.el),
@@ -175,46 +209,25 @@
       path.style.strokeDashoffset = len;
       path.dataset.len = len;
     });
-    if (heroRefs.skeletonImg) heroRefs.skeletonImg.style.transformOrigin = '58% 58%';
     setTimeout(function () { heroRefs.lockupTitle.classList.add('chars-in'); }, 150);
   }
 
   function heroFrame(pin, p) {
     var r = heroRefs;
 
-    /* Beat map:
+    /* Beat map (one film, see TIMELINE.hero):
        0.00-0.08  hold: wordmark, CTA, cue, particles
-       0.07-0.33  pan film scrub
-       0.34-0.55  morph film scrub
-       0.55-0.74  skeleton hold: title, hairlines, cards
-       0.75-0.94  dive film scrub into white
+       0.08-0.31  pan orbit
+       0.31-0.55  x-ray morph
+       0.55-0.75  skeleton hold: title, hairlines, cards
+       0.75-0.94  dive into white
        0.92-1.00  white veil into the services room */
 
-    /* Clips are frame-locked to their neighbours, so hand-offs are tight
-       cuts placed AFTER the outgoing scrub has fully settled — long soft
-       crossfades between two moving films read as double exposure. */
-    r.still.style.opacity = 1 - fade(p, 0.07, 0.1);
-    r.pan.style.opacity = fade(p, 0.07, 0.1) - fade(p, 0.335, 0.35);
-    seekFilm(pin.films.pan, remap(fade(p, 0.08, 0.31), PACE.pan));
-
-    r.morph.style.opacity = fade(p, 0.335, 0.35) - fade(p, 0.555, 0.57);
-    seekFilm(pin.films.morph, remap(fade(p, 0.36, 0.53), PACE.morph));
-
-    var diveOk = pin.films.dive && !pin.films.dive.missing;
-    if (diveOk) {
-      r.skeleton.style.opacity = fade(p, 0.555, 0.57) - fade(p, 0.75, 0.77);
-      r.divefilm.style.opacity = fade(p, 0.75, 0.77);
-      seekFilm(pin.films.dive, remap(fade(p, 0.77, 0.94), PACE.dive));
-      r.skeletonImg.style.transform = 'none';
-    } else {
-      /* Fallback: flat CSS zoom on the still carries the dive */
-      r.skeleton.style.opacity = fade(p, 0.55, 0.58) - fade(p, 0.97, 1);
-      r.divefilm.style.opacity = 0;
-      var d = fade(p, 0.75, 0.93);
-      var dEase = d * d * (3 - 2 * d);
-      r.skeletonImg.style.transform = 'scale(' + (1 + dEase * 2.1) + ')';
-    }
+    seekFilm(pin.films.hero, remap(p, TIMELINE.hero));
     r.veil.style.opacity = fade(p, 0.92, 0.98);
+
+    /* Halfway through the hero, make sure the services film is warming */
+    if (p > 0.35) wakeSvc();
 
     /* Hold UI rides up and fades */
     var lift = fade(p, 0.02, 0.1);
@@ -251,9 +264,6 @@
       head: $('.services__head', pin.el),
       headTitle: $('.services__head h2', pin.el),
       cards: $$('.svc-card', pin.el),
-      warp: $('.film--warp', pin.el),
-      emerge: $('.film--emerge', pin.el),
-      rise: $('.film--rise', pin.el),
       hold: $('.light-hold', pin.el),
       holdTexts: $$('.light-hold__text', pin.el),
       introH: $('.rise-intro h2', pin.el),
@@ -264,13 +274,11 @@
   function servicesFrame(pin, p) {
     var r = svcRefs;
 
-    /* Beat map:
-       0.00-0.44  warp film runs from the first pixel (it opens on the same
-                  warm white the dive ends on); glass cards ride on top
-       0.44-0.74  emergence film, played FORWARD: slow colossal pull-back
-                  out of the bulb, ending on the headlight signature
-       0.62-0.80  headlight hold: texts land, flicker runs
-       0.78-0.96  rise film; center intro reveals
+    /* Beat map (one film, see TIMELINE.svc):
+       0.00-0.43  warp streaks from the first pixel; glass cards on top
+       0.43-0.67  barrel-roll emergence onto the headlight
+       0.67-0.78  headlight hold: texts land, flicker runs
+       0.78-0.96  rise into the streak; center intro reveals
        0.955+     edge glow border takes over */
 
     r.headTitle.classList.toggle('chars-in', p > 0.015 && p < 0.5);
@@ -285,21 +293,13 @@
     r.content.classList.add('over-warp');
     r.content.style.opacity = 1 - fade(p, 0.42, 0.46);
 
-    r.warp.style.opacity = 1 - fade(p, 0.44, 0.46);
-    seekFilm(pin.films.warp, remap(fade(p, 0.0, 0.43), PACE.warp));
-
-    /* Warp ends white, emerge begins white: a hard-cut hand-off. */
-    r.emerge.style.opacity = fade(p, 0.44, 0.46) - fade(p, 0.77, 0.79);
-    seekFilm(pin.films.emerge, remap(fade(p, 0.45, 0.74), PACE.emerge));
+    seekFilm(pin.films.svc, remap(p, TIMELINE.svc));
 
     r.holdTexts.forEach(function (el, i) {
-      var at = 0.62 + i * 0.045;
-      el.style.opacity = fade(p, at, at + 0.04) - fade(p, 0.78, 0.81);
+      var at = 0.67 + i * 0.03;
+      el.style.opacity = fade(p, at, at + 0.035) - fade(p, 0.78, 0.81);
     });
-    r.hold.classList.toggle('is-on', p > 0.64 && p < 0.97);
-
-    r.rise.style.opacity = fade(p, 0.76, 0.79);
-    seekFilm(pin.films.rise, remap(fade(p, 0.78, 0.96), PACE.rise));
+    r.hold.classList.toggle('is-on', p > 0.68 && p < 0.97);
 
     var ih = fade(p, 0.85, 0.91);
     r.introH.style.opacity = ih;

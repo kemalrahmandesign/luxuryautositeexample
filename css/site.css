@@ -527,7 +527,7 @@ html.is-loading, html.is-loading body { overflow: hidden; }
   position: fixed;
   inset: 0;
   z-index: 300;
-  background: var(--color-void-black);
+  background: #eeece7;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -538,25 +538,25 @@ html.is-loading, html.is-loading body { overflow: hidden; }
   pointer-events: none;
   transition: opacity 0.6s ease;
 }
-/* Large low-contrast wordmark whose letters spread edge-to-edge */
+/* Thin, wide, very-low-contrast wordmark whose letters spread edge-to-edge */
 .loader__word {
   position: absolute;
   inset: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 3.5vw;
-  font-weight: 600;
-  font-size: clamp(80px, 15vw, 300px);
+  padding: 0 2vw;
+  font-weight: 300;
+  font-size: clamp(90px, 17vw, 340px);
   line-height: 1;
-  color: #1c1c1c;
+  color: #e4e1db;
   user-select: none;
   transition: opacity 0.45s ease;
 }
 .loader__word span { display: block; }
 .loader.is-counted .loader__word { opacity: 0; }
 
-/* Counter: centered, clean Inter numerals */
+/* Counter: centered, small and subtle, tight numerals */
 .loader__count {
   position: absolute;
   inset: 0;
@@ -565,9 +565,9 @@ html.is-loading, html.is-loading body { overflow: hidden; }
   justify-content: center;
   font-family: var(--font-body);
   font-weight: 500;
-  font-size: clamp(26px, 4.4vw, 58px);
-  letter-spacing: 0.01em;
-  color: #7a7a7a;
+  font-size: clamp(15px, 1.7vw, 22px);
+  letter-spacing: -0.02em;
+  color: #9a968f;
   font-variant-numeric: tabular-nums;
   font-style: normal;
   text-transform: none;
@@ -585,7 +585,7 @@ html.is-loading, html.is-loading body { overflow: hidden; }
   inset: 0;
   z-index: 1;
   opacity: 0;
-  clip-path: inset(58% 45.5% 33% 45.5% round 9px);
+  clip-path: inset(54% 45.5% 37% 45.5% round 9px);
   transition: opacity 0.4s ease;
 }
 .loader.is-counted .loader__reveal { opacity: 1; }
@@ -602,6 +602,8 @@ html.reduced .loader { display: none; }
 @media (pointer: fine) {
   html.cursor-on, html.cursor-on * { cursor: none; }
 }
+/* difference blend => the cursor is always the inverse of whatever is behind
+   it: black on light backgrounds, white on dark. */
 .cursor-dot, .cursor-ring {
   position: fixed;
   top: 0; left: 0;
@@ -609,25 +611,20 @@ html.reduced .loader { display: none; }
   pointer-events: none;
   border-radius: 50%;
   will-change: transform;
+  mix-blend-mode: difference;
 }
 .cursor-dot {
-  width: 6px; height: 6px;
+  width: 8px; height: 8px;
   background: #fff;
-  box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
   transition: opacity 0.25s ease;
 }
 .cursor-ring {
   width: 30px; height: 30px;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  transition: width 0.25s ease, height 0.25s ease,
-    border-color 0.25s ease, background 0.25s ease, opacity 0.25s ease;
+  border: 1.5px solid #fff;
+  transition: width 0.25s ease, height 0.25s ease, opacity 0.25s ease;
 }
-.cursor-ring.is-hot {
-  width: 46px; height: 46px;
-  border-color: rgba(204, 100, 55, 0.85);
-  background: rgba(204, 100, 55, 0.08);
-}
-.cursor-ring.is-down { width: 24px; height: 24px; border-color: rgba(255, 255, 255, 0.8); }
+.cursor-ring.is-hot { width: 46px; height: 46px; }
+.cursor-ring.is-down { width: 24px; height: 24px; }
 
 /* ---------- Book / footer ---------- */
 

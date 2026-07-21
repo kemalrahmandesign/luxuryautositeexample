@@ -355,14 +355,18 @@
   function particlesSeed() {
     motes = [];
     var w = pCanvas.offsetWidth || window.innerWidth;
-    var count = Math.max(90, Math.min(200, Math.round(w / 9)));
+    var count = Math.max(60, Math.min(120, Math.round(w / 14)));
     for (var i = 0; i < count; i++) {
+      var x = Math.random(), y = Math.random();
+      /* keep the air around and above the car, not piled in front of it */
+      if (x > 0.32 && x < 0.68 && y > 0.5) y = Math.random() * 0.5;
       motes.push({
-        x: Math.random(), y: Math.random(),
-        r: 0.8 + Math.random() * 2.6,
-        s: 0.00010 + Math.random() * 0.0006,
+        x: x, y: y,
+        r: 0.7 + Math.random() * 1.9,
+        s: 0.00005 + Math.random() * 0.00022,   /* slow leftward drift */
+        g: 0.00003 + Math.random() * 0.00009,   /* gentle gravity */
         w: Math.random() * Math.PI * 2,
-        a: 0.22 + Math.random() * 0.5
+        a: 0.16 + Math.random() * 0.4
       });
     }
   }
@@ -376,9 +380,13 @@
     for (var i = 0; i < motes.length; i++) {
       var m = motes[i];
       m.x -= m.s;
-      if (m.x < -0.02) { m.x = 1.02; m.y = Math.random(); }
-      var y = m.y + Math.sin(t * 0.0004 + m.w) * 0.012;
-      pCtx.globalAlpha = m.a * (0.55 + 0.45 * Math.sin(t * 0.001 + m.w));
+      m.y += m.g;                                  /* fall with gravity */
+      if (m.x < -0.02) { m.x = 1.02; m.y = Math.random() * 0.8; }
+      if (m.y > 1.04) { m.y = -0.02; m.x = Math.random(); }
+      var y = m.y + Math.sin(t * 0.0003 + m.w) * 0.006;
+      /* dim anything drifting in front of the car so it stays a backdrop */
+      var inCar = m.x > 0.34 && m.x < 0.66 && y > 0.55;
+      pCtx.globalAlpha = m.a * (inCar ? 0.3 : 1) * (0.55 + 0.45 * Math.sin(t * 0.0008 + m.w));
       pCtx.shadowBlur = m.r * 2.5;
       pCtx.beginPath();
       pCtx.arc(m.x * pCanvas.width, y * pCanvas.height, m.r, 0, Math.PI * 2);
@@ -402,14 +410,15 @@
 
   /* ---------- CTA directional fill (button stays put) ---------- */
 
+  /* Independent x/y offsets so a corner entry fills diagonally and an edge
+     entry fills straight in from that edge. */
   function edgeOffset(e, rect) {
-    var x = e.clientX - rect.left, y = e.clientY - rect.top;
-    var l = x, r = rect.width - x, tp = y, b = rect.height - y;
-    var m = Math.min(l, r, tp, b);
-    if (m === l) return ['-101%', '0%'];
-    if (m === r) return ['101%', '0%'];
-    if (m === tp) return ['0%', '-101%'];
-    return ['0%', '101%'];
+    var nx = (e.clientX - rect.left) / rect.width - 0.5;   /* -0.5..0.5 */
+    var ny = (e.clientY - rect.top) / rect.height - 0.5;
+    var fx = nx < -0.28 ? '-101%' : nx > 0.28 ? '101%' : '0%';
+    var fy = ny < -0.28 ? '-101%' : ny > 0.28 ? '101%' : '0%';
+    if (fx === '0%' && fy === '0%') fy = ny < 0 ? '-101%' : '101%';
+    return [fx, fy];
   }
 
   $$('.cta').forEach(function (btn) {

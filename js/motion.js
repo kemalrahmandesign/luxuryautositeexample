@@ -348,13 +348,14 @@
 
   function particlesSeed() {
     motes = [];
-    for (var i = 0; i < 42; i++) {
+    var count = Math.min(150, Math.round(pCanvas.offsetWidth / 12));
+    for (var i = 0; i < count; i++) {
       motes.push({
         x: Math.random(), y: Math.random(),
-        r: 0.4 + Math.random() * 1.1,
-        s: 0.00012 + Math.random() * 0.0005,
+        r: 0.6 + Math.random() * 2.0,
+        s: 0.00012 + Math.random() * 0.0006,
         w: Math.random() * Math.PI * 2,
-        a: 0.05 + Math.random() * 0.22
+        a: 0.12 + Math.random() * 0.4
       });
     }
   }
@@ -363,18 +364,21 @@
     if (!pCtx) return;
     pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
     if (!particlesActive) return;
+    pCtx.fillStyle = '#ffffff';
+    pCtx.shadowColor = 'rgba(255,255,255,0.9)';
     for (var i = 0; i < motes.length; i++) {
       var m = motes[i];
       m.x -= m.s;
       if (m.x < -0.02) { m.x = 1.02; m.y = Math.random(); }
       var y = m.y + Math.sin(t * 0.0004 + m.w) * 0.012;
-      pCtx.globalAlpha = m.a * (0.6 + 0.4 * Math.sin(t * 0.001 + m.w));
-      pCtx.fillStyle = '#ffffff';
+      pCtx.globalAlpha = m.a * (0.55 + 0.45 * Math.sin(t * 0.001 + m.w));
+      pCtx.shadowBlur = m.r * 2.5;
       pCtx.beginPath();
       pCtx.arc(m.x * pCanvas.width, y * pCanvas.height, m.r, 0, Math.PI * 2);
       pCtx.fill();
     }
     pCtx.globalAlpha = 1;
+    pCtx.shadowBlur = 0;
   }
 
   /* ---------- reveals for non-pinned sections ---------- */
@@ -402,6 +406,52 @@
       });
       btn.addEventListener('mouseleave', function () { xTo(0); yTo(0); });
     });
+  }
+
+  /* ---------- custom cursor (fine pointer only) ---------- */
+
+  var cursorRing = null, cursorDot = null;
+  var cx = window.innerWidth / 2, cy = window.innerHeight / 2;   /* live mouse */
+  var rxp = cx, ryp = cy;                                        /* lagging ring */
+
+  if (finePointer) {
+    docEl.classList.add('cursor-on');
+    cursorDot = document.createElement('div');
+    cursorDot.className = 'cursor-dot';
+    cursorRing = document.createElement('div');
+    cursorRing.className = 'cursor-ring';
+    document.body.appendChild(cursorRing);
+    document.body.appendChild(cursorDot);
+
+    window.addEventListener('mousemove', function (e) {
+      cx = e.clientX; cy = e.clientY;
+      cursorDot.style.transform = 'translate(' + cx + 'px,' + cy + 'px) translate(-50%,-50%)';
+    });
+    document.addEventListener('mouseover', function (e) {
+      if (e.target.closest && e.target.closest('a, button, .cta, [data-magnetic], .svc-card, .callout, .nav__link')) {
+        cursorRing.classList.add('is-hot');
+      }
+    });
+    document.addEventListener('mouseout', function (e) {
+      if (e.target.closest && e.target.closest('a, button, .cta, [data-magnetic], .svc-card, .callout, .nav__link')) {
+        cursorRing.classList.remove('is-hot');
+      }
+    });
+    document.addEventListener('mousedown', function () { cursorRing.classList.add('is-down'); });
+    document.addEventListener('mouseup', function () { cursorRing.classList.remove('is-down'); });
+    window.addEventListener('mouseout', function (e) {
+      if (!e.relatedTarget) { cursorDot.style.opacity = 0; cursorRing.style.opacity = 0; }
+    });
+    window.addEventListener('mouseover', function () {
+      cursorDot.style.opacity = ''; cursorRing.style.opacity = '';
+    });
+  }
+
+  function cursorFrame() {
+    if (!cursorRing) return;
+    rxp += (cx - rxp) * 0.18;
+    ryp += (cy - ryp) * 0.18;
+    cursorRing.style.transform = 'translate(' + rxp + 'px,' + ryp + 'px) translate(-50%,-50%)';
   }
 
   /* ---------- init + main loop ---------- */
@@ -451,6 +501,7 @@
 
     particlesFrame(t);
     edgeFrame(t);
+    cursorFrame();
     requestAnimationFrame(frame);
   }
 

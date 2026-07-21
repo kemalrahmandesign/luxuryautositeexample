@@ -13,6 +13,46 @@
 </head>
 <body>
 
+  <!-- Intro loader: quick 0-100% over a low-contrast VANTA wordmark, then the
+       hero frame blooms from a centered rounded card out to full screen. -->
+  <div id="loader" class="loader" aria-hidden="true">
+    <span class="loader__word">VANTA</span>
+    <div class="loader__reveal"><img src="media/hero-front.png" alt=""></div>
+    <span class="loader__count"><i>0</i>%</span>
+  </div>
+  <script>
+  (function () {
+    var el = document.getElementById('loader');
+    if (!el) return;
+    var count = el.querySelector('.loader__count i');
+    var root = document.documentElement;
+    root.classList.add('is-loading');
+    function finish() {
+      el.classList.add('is-done');
+      root.classList.remove('is-loading');
+      setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 700);
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      finish();
+      return;
+    }
+    var dur = 1300, start = 0;
+    function step(ts) {
+      if (!start) start = ts;
+      var p = Math.min(1, (ts - start) / dur);
+      var eased = p * p * (3 - 2 * p);
+      count.textContent = Math.round(eased * 100);
+      if (p < 1) { requestAnimationFrame(step); }
+      else {
+        el.classList.add('is-counted');
+        setTimeout(function () { el.classList.add('is-expanding'); }, 320);
+        setTimeout(finish, 1320);
+      }
+    }
+    requestAnimationFrame(step);
+  })();
+  </script>
+
   <nav class="nav">
     <span class="nav__mark">VANTA</span>
     <div class="nav__links">
@@ -23,8 +63,29 @@
   </nav>
 
   <!-- Apple-intelligence style edge glow, in white. Activated when the
-       light bar reaches the top of the frame. -->
-  <div class="edge-glow" aria-hidden="true"></div>
+       light bar reaches the top of the frame. The conic ring supplies the
+       travelling bright segments; the SVG turbulence filter warps it into a
+       fluid, variable-thickness liquid band. -->
+  <svg class="edge-glow__defs" width="0" height="0" aria-hidden="true" focusable="false">
+    <defs>
+      <filter id="edgeLiquid" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB">
+        <feTurbulence type="fractalNoise" baseFrequency="0.005 0.009" numOctaves="2" seed="8" result="noise">
+          <animate attributeName="baseFrequency" dur="20s" repeatCount="indefinite"
+            values="0.005 0.009; 0.008 0.006; 0.004 0.010; 0.007 0.007; 0.005 0.009"
+            keyTimes="0; 0.28; 0.55; 0.8; 1" calcMode="spline"
+            keySplines="0.4 0 0.6 1; 0.4 0 0.6 1; 0.4 0 0.6 1; 0.4 0 0.6 1"/>
+        </feTurbulence>
+        <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="40">
+          <animate attributeName="scale" dur="10s" repeatCount="indefinite"
+            values="28; 48; 34; 44; 28" keyTimes="0;0.25;0.5;0.75;1" calcMode="spline"
+            keySplines="0.45 0 0.55 1; 0.45 0 0.55 1; 0.45 0 0.55 1; 0.45 0 0.55 1"/>
+        </feDisplacementMap>
+      </filter>
+    </defs>
+  </svg>
+  <div class="edge-glow" aria-hidden="true">
+    <div class="edge-glow__ring"></div>
+  </div>
 
   <!-- ============ HERO: hold, pan, skeleton, dive to white ============ -->
   <section class="pin pin--hero" data-pin data-pin-name="hero">

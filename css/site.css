@@ -482,36 +482,146 @@ img, video { display: block; max-width: 100%; }
 
 /* ---------- Edge glow (white, travels around the viewport frame) ---------- */
 
+.edge-glow__defs { position: fixed; pointer-events: none; }
+
 .edge-glow {
   position: fixed;
-  inset: 6px;
+  inset: 5px;
   z-index: 60;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.9s ease;
+  transition: opacity 1s ease;
   --edge-a: 0deg;
 }
 .edge-glow.is-on { opacity: 1; }
-.edge-glow::before, .edge-glow::after {
+/* The liquid warp only runs while the border is visible (turbulence is
+   expensive); the ring wrapper carries the filter so both layers warp
+   together and stay registered. */
+.edge-glow.is-on .edge-glow__ring { filter: url(#edgeLiquid); }
+
+.edge-glow__ring { position: absolute; inset: 0; }
+.edge-glow__ring::before, .edge-glow__ring::after {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: 18px;
-  padding: 5px;
+  border-radius: 22px;
+  /* Thickness of the band ~ the hero light bar. Several bright arcs of
+     different widths make the thickness read as uneven and fluid. */
+  padding: 16px;
   background: conic-gradient(from var(--edge-a) at 50% 50%,
-    transparent 0deg,
-    rgba(255, 255, 255, 0.95) 14deg,
-    rgba(255, 255, 255, 0.25) 32deg,
-    transparent 60deg,
-    transparent 178deg,
-    rgba(255, 255, 255, 0.55) 196deg,
-    transparent 226deg);
+    rgba(255, 255, 255, 0.10) 0deg,
+    rgba(255, 255, 255, 1) 10deg,
+    rgba(255, 255, 255, 0.35) 40deg,
+    rgba(255, 255, 255, 0.08) 74deg,
+    rgba(255, 255, 255, 0.55) 120deg,
+    rgba(255, 255, 255, 0.12) 158deg,
+    rgba(255, 255, 255, 0.9) 196deg,
+    rgba(255, 255, 255, 0.3) 232deg,
+    rgba(255, 255, 255, 0.08) 270deg,
+    rgba(255, 255, 255, 0.6) 312deg,
+    rgba(255, 255, 255, 0.12) 344deg,
+    rgba(255, 255, 255, 0.10) 360deg);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: exclude;
 }
-.edge-glow::after { filter: blur(18px); }
+/* Soft outer bloom copy, wider padding so the glow bleeds past the core. */
+.edge-glow__ring::after { padding: 22px; filter: blur(26px); opacity: 0.85; }
+
+/* ---------- Intro loader ---------- */
+
+html.is-loading, html.is-loading body { overflow: hidden; }
+
+.loader {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: var(--color-void-black);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.loader.is-done {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.6s ease;
+}
+/* Low-contrast wordmark sitting behind the counter */
+.loader__word {
+  position: absolute;
+  font-weight: 700;
+  font-size: clamp(90px, 21vw, 340px);
+  letter-spacing: -0.04em;
+  line-height: 1;
+  color: #161616;
+  user-select: none;
+  transition: opacity 0.45s ease;
+}
+.loader.is-counted .loader__word { opacity: 0; }
+
+.loader__count {
+  position: absolute;
+  right: 7vw;
+  bottom: 7vh;
+  font-weight: 700;
+  font-size: clamp(38px, 7vw, 88px);
+  letter-spacing: -0.03em;
+  color: #3a3a3a;
+  font-variant-numeric: tabular-nums;
+  transition: opacity 0.4s ease;
+}
+.loader.is-counted .loader__count { opacity: 0; }
+
+/* Hero frame blooms from a centered rounded card to full screen */
+.loader__reveal {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  clip-path: inset(31% 34% round 26px);
+  transition: opacity 0.4s ease;
+}
+.loader.is-counted .loader__reveal { opacity: 1; }
+.loader.is-expanding .loader__reveal {
+  clip-path: inset(0% 0% round 0px);
+  transition: clip-path 1s cubic-bezier(0.72, 0, 0.18, 1), opacity 0.4s ease;
+}
+.loader__reveal img { width: 100%; height: 100%; object-fit: cover; }
+
+html.reduced .loader { display: none; }
+
+/* ---------- Custom cursor (fine pointer only) ---------- */
+
+@media (pointer: fine) {
+  html.cursor-on, html.cursor-on * { cursor: none; }
+}
+.cursor-dot, .cursor-ring {
+  position: fixed;
+  top: 0; left: 0;
+  z-index: 200;
+  pointer-events: none;
+  border-radius: 50%;
+  will-change: transform;
+}
+.cursor-dot {
+  width: 7px; height: 7px;
+  background: #fff;
+  mix-blend-mode: difference;
+  transition: opacity 0.25s ease;
+}
+.cursor-ring {
+  width: 34px; height: 34px;
+  border: 1.5px solid rgba(255, 255, 255, 0.55);
+  transition: width 0.22s ease, height 0.22s ease,
+    border-color 0.22s ease, background 0.22s ease, opacity 0.25s ease;
+}
+.cursor-ring.is-hot {
+  width: 54px; height: 54px;
+  border-color: rgba(204, 100, 55, 0.9);
+  background: rgba(204, 100, 55, 0.12);
+}
+.cursor-ring.is-down { width: 26px; height: 26px; border-color: rgba(255, 255, 255, 0.9); }
 
 /* ---------- Book / footer ---------- */
 

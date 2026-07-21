@@ -209,7 +209,11 @@
       path.style.strokeDashoffset = len;
       path.dataset.len = len;
     });
-    setTimeout(function () { heroRefs.lockupTitle.classList.add('chars-in'); }, 150);
+    /* The giant VANTA reveals letter-by-letter once the loader hands off
+       (bottom-up per glyph, left-to-right via the --d stagger). */
+    function revealTitle() { heroRefs.lockupTitle.classList.add('chars-in'); }
+    if (window.__vantaLoaded) setTimeout(revealTitle, 120);
+    else window.addEventListener('vanta:loaded', function () { setTimeout(revealTitle, 120); }, { once: true });
   }
 
   function heroFrame(pin, p) {
@@ -342,20 +346,23 @@
 
   function particlesResize() {
     if (!pCanvas) return;
-    pCanvas.width = pCanvas.offsetWidth;
-    pCanvas.height = pCanvas.offsetHeight;
+    /* offset* can be 0 before the pinned stage lays out; fall back to the
+       viewport so the seed count is never 0 (that was killing the dust). */
+    pCanvas.width = pCanvas.offsetWidth || window.innerWidth;
+    pCanvas.height = pCanvas.offsetHeight || window.innerHeight;
   }
 
   function particlesSeed() {
     motes = [];
-    var count = Math.min(150, Math.round(pCanvas.offsetWidth / 12));
+    var w = pCanvas.offsetWidth || window.innerWidth;
+    var count = Math.max(90, Math.min(200, Math.round(w / 9)));
     for (var i = 0; i < count; i++) {
       motes.push({
         x: Math.random(), y: Math.random(),
-        r: 0.6 + Math.random() * 2.0,
-        s: 0.00012 + Math.random() * 0.0006,
+        r: 0.8 + Math.random() * 2.6,
+        s: 0.00010 + Math.random() * 0.0006,
         w: Math.random() * Math.PI * 2,
-        a: 0.12 + Math.random() * 0.4
+        a: 0.22 + Math.random() * 0.5
       });
     }
   }
@@ -393,20 +400,37 @@
   }, { rootMargin: '0px 0px -12% 0px' });
   $$('[data-reveal]').forEach(function (el) { io.observe(el); });
 
-  /* ---------- GSAP flourishes (guarded: site works without the CDN) ---------- */
+  /* ---------- CTA directional fill (button stays put) ---------- */
 
-  if (window.gsap && finePointer) {
-    $$('[data-magnetic]').forEach(function (btn) {
-      var xTo = window.gsap.quickTo(btn, 'x', { duration: 0.4, ease: 'power3' });
-      var yTo = window.gsap.quickTo(btn, 'y', { duration: 0.4, ease: 'power3' });
-      btn.addEventListener('mousemove', function (e) {
-        var rect = btn.getBoundingClientRect();
-        xTo((e.clientX - rect.left - rect.width / 2) * 0.35);
-        yTo((e.clientY - rect.top - rect.height / 2) * 0.5);
-      });
-      btn.addEventListener('mouseleave', function () { xTo(0); yTo(0); });
-    });
+  function edgeOffset(e, rect) {
+    var x = e.clientX - rect.left, y = e.clientY - rect.top;
+    var l = x, r = rect.width - x, tp = y, b = rect.height - y;
+    var m = Math.min(l, r, tp, b);
+    if (m === l) return ['-101%', '0%'];
+    if (m === r) return ['101%', '0%'];
+    if (m === tp) return ['0%', '-101%'];
+    return ['0%', '101%'];
   }
+
+  $$('.cta').forEach(function (btn) {
+    var fill = $('.cta__fill', btn);
+    if (!fill) return;
+    btn.addEventListener('mouseenter', function (e) {
+      var d = edgeOffset(e, btn.getBoundingClientRect());
+      fill.style.transition = 'none';
+      fill.style.setProperty('--fx', d[0]);
+      fill.style.setProperty('--fy', d[1]);
+      void fill.offsetWidth;            /* commit the start edge before sweeping in */
+      fill.style.transition = '';
+      btn.classList.add('is-filled');
+    });
+    btn.addEventListener('mouseleave', function (e) {
+      var d = edgeOffset(e, btn.getBoundingClientRect());
+      fill.style.setProperty('--fx', d[0]);
+      fill.style.setProperty('--fy', d[1]);
+      btn.classList.remove('is-filled');
+    });
+  });
 
   /* ---------- custom cursor (fine pointer only) ---------- */
 
@@ -465,7 +489,7 @@
 
   particlesResize();
   particlesSeed();
-  window.addEventListener('resize', particlesResize);
+  window.addEventListener('resize', function () { particlesResize(); particlesSeed(); });
 
   /* Hide stills the media workflow has not fetched yet */
   $$('.layer img').forEach(function (img) {

@@ -103,16 +103,18 @@ img, video { display: block; max-width: 100%; }
   will-change: transform;
 }
 .cta__label { position: relative; z-index: 1; transition: color 0.3s ease; }
+/* Fill sweeps in from the edge the cursor entered (direction set in JS via
+   --fx/--fy); the button itself never moves. */
 .cta__fill {
   position: absolute;
   inset: -1px;
   background: var(--color-pure-white);
   border-radius: inherit;
-  transform: translateY(101%);
+  transform: translate(var(--fx, 0%), var(--fy, 101%));
   transition: transform 0.45s cubic-bezier(0.65, 0, 0.35, 1);
 }
-.cta:hover .cta__fill { transform: translateY(0); }
-.cta:hover .cta__label { color: var(--color-void-black); }
+.cta.is-filled .cta__fill { transform: translate(0%, 0%); }
+.cta.is-filled .cta__label { color: var(--color-void-black); }
 
 .cta--dark { border-color: var(--color-pure-white); }
 
@@ -209,6 +211,8 @@ img, video { display: block; max-width: 100%; }
 .hero__particles {
   position: absolute;
   inset: 0;
+  width: 100%;
+  height: 100%;
   z-index: 4;
   pointer-events: none;
 }
@@ -443,18 +447,8 @@ img, video { display: block; max-width: 100%; }
 .light-hold__text--right { right: var(--spacing-40); top: 50%; transform: translateY(-50%); }
 .light-hold__text--bottom { bottom: 10vh; left: 0; right: 0; text-align: center; letter-spacing: 0.4em; }
 
-.light-hold__flicker {
-  position: absolute;
-  inset: 0;
-  background: rgba(255, 255, 255, 0.07);
-  opacity: 0;
-}
-.light-hold.is-on .light-hold__flicker { animation: flicker 3.8s infinite steps(1); }
-
-@keyframes flicker {
-  0%, 87%, 92.5%, 95.5% { opacity: 0; }
-  89%, 94%, 97% { opacity: 1; }
-}
+/* Flicker removed: the hard opacity steps read as a broken monitor. */
+.light-hold__flicker { display: none; }
 
 .rise-intro {
   z-index: 8;
@@ -505,29 +499,25 @@ img, video { display: block; max-width: 100%; }
   position: absolute;
   inset: 0;
   border-radius: 22px;
-  /* Thickness of the band ~ the hero light bar. Several bright arcs of
-     different widths make the thickness read as uneven and fluid. */
-  padding: 16px;
+  /* Thickness ~ the hero light bar. Two smooth bright arcs travel the frame
+     with soft falloff; the SVG filter adds only a gentle liquid undulation. */
+  padding: 14px;
   background: conic-gradient(from var(--edge-a) at 50% 50%,
-    rgba(255, 255, 255, 0.10) 0deg,
-    rgba(255, 255, 255, 1) 10deg,
-    rgba(255, 255, 255, 0.35) 40deg,
-    rgba(255, 255, 255, 0.08) 74deg,
-    rgba(255, 255, 255, 0.55) 120deg,
-    rgba(255, 255, 255, 0.12) 158deg,
-    rgba(255, 255, 255, 0.9) 196deg,
-    rgba(255, 255, 255, 0.3) 232deg,
-    rgba(255, 255, 255, 0.08) 270deg,
-    rgba(255, 255, 255, 0.6) 312deg,
-    rgba(255, 255, 255, 0.12) 344deg,
-    rgba(255, 255, 255, 0.10) 360deg);
+    rgba(255, 255, 255, 0.04) 0deg,
+    rgba(255, 255, 255, 0.85) 32deg,
+    rgba(255, 255, 255, 0.14) 92deg,
+    rgba(255, 255, 255, 0.04) 168deg,
+    rgba(255, 255, 255, 0.04) 200deg,
+    rgba(255, 255, 255, 0.6) 288deg,
+    rgba(255, 255, 255, 0.1) 336deg,
+    rgba(255, 255, 255, 0.04) 360deg);
   -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   mask-composite: exclude;
 }
 /* Soft outer bloom copy, wider padding so the glow bleeds past the core. */
-.edge-glow__ring::after { padding: 22px; filter: blur(26px); opacity: 0.85; }
+.edge-glow__ring::after { padding: 20px; filter: blur(22px); opacity: 0.7; }
 
 /* ---------- Intro loader ---------- */
 
@@ -548,7 +538,7 @@ html.is-loading, html.is-loading body { overflow: hidden; }
   pointer-events: none;
   transition: opacity 0.6s ease;
 }
-/* Low-contrast wordmark sitting behind the counter, centered */
+/* Large low-contrast wordmark filling the screen behind the counter */
 .loader__word {
   position: absolute;
   inset: 0;
@@ -556,53 +546,51 @@ html.is-loading, html.is-loading body { overflow: hidden; }
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: clamp(90px, 21vw, 340px);
-  letter-spacing: -0.04em;
+  font-size: clamp(130px, 31vw, 560px);
+  letter-spacing: -0.05em;
   line-height: 1;
-  color: #191919;
+  color: #1c1c1c;
   user-select: none;
   transition: opacity 0.45s ease;
 }
 .loader.is-counted .loader__word { opacity: 0; }
 
+/* Counter: centered, clean Inter numerals */
 .loader__count {
   position: absolute;
-  right: 7vw;
-  bottom: 7vh;
-  font-weight: 700;
-  font-size: clamp(38px, 7vw, 88px);
-  letter-spacing: -0.03em;
-  color: #3a3a3a;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-body);
+  font-weight: 500;
+  font-size: clamp(26px, 4.4vw, 58px);
+  letter-spacing: 0.01em;
+  color: #7a7a7a;
   font-variant-numeric: tabular-nums;
+  font-style: normal;
+  text-transform: none;
   transition: opacity 0.4s ease;
   z-index: 2;
 }
+.loader__count i { font-style: normal; }
 .loader.is-counted .loader__count { opacity: 0; }
 
-/* Hero frame starts as a small centered rounded card showing the whole
-   scene, then grows out to full screen (size + radius animation, so the
-   corner radius stays honest through the growth). */
+/* Hero shows at its NORMAL size; a tiny centred 16:9 window opens over it
+   and expands to reveal the whole frame (clip only — the image never
+   scales). */
 .loader__reveal {
-  position: relative;
+  position: absolute;
+  inset: 0;
   z-index: 1;
-  width: 26vw;
-  height: 14.6vw;
-  border-radius: 22px;
-  overflow: hidden;
   opacity: 0;
-  transform: scale(0.94);
-  box-shadow: 0 30px 90px rgba(0, 0, 0, 0.55);
-  transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+  clip-path: inset(50% 46% 41% 46% round 9px);
+  transition: opacity 0.4s ease;
 }
-.loader.is-counted .loader__reveal { opacity: 1; transform: scale(1); }
+.loader.is-counted .loader__reveal { opacity: 1; }
 .loader.is-expanding .loader__reveal {
-  width: 100vw;
-  height: 100vh;
-  border-radius: 0;
-  box-shadow: none;
-  transition: width 1s cubic-bezier(0.7, 0, 0.15, 1),
-    height 1s cubic-bezier(0.7, 0, 0.15, 1),
-    border-radius 0.9s ease;
+  clip-path: inset(0% 0% 0% 0% round 0px);
+  transition: clip-path 1.05s cubic-bezier(0.76, 0, 0.14, 1);
 }
 .loader__reveal img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
@@ -622,23 +610,23 @@ html.reduced .loader { display: none; }
   will-change: transform;
 }
 .cursor-dot {
-  width: 7px; height: 7px;
+  width: 6px; height: 6px;
   background: #fff;
-  mix-blend-mode: difference;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
   transition: opacity 0.25s ease;
 }
 .cursor-ring {
-  width: 34px; height: 34px;
-  border: 1.5px solid rgba(255, 255, 255, 0.55);
-  transition: width 0.22s ease, height 0.22s ease,
-    border-color 0.22s ease, background 0.22s ease, opacity 0.25s ease;
+  width: 30px; height: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  transition: width 0.25s ease, height 0.25s ease,
+    border-color 0.25s ease, background 0.25s ease, opacity 0.25s ease;
 }
 .cursor-ring.is-hot {
-  width: 54px; height: 54px;
-  border-color: rgba(204, 100, 55, 0.9);
-  background: rgba(204, 100, 55, 0.12);
+  width: 46px; height: 46px;
+  border-color: rgba(204, 100, 55, 0.85);
+  background: rgba(204, 100, 55, 0.08);
 }
-.cursor-ring.is-down { width: 26px; height: 26px; border-color: rgba(255, 255, 255, 0.9); }
+.cursor-ring.is-down { width: 24px; height: 24px; border-color: rgba(255, 255, 255, 0.8); }
 
 /* ---------- Book / footer ---------- */
 

@@ -30,6 +30,8 @@
     function finish() {
       el.classList.add('is-done');
       root.classList.remove('is-loading');
+      window.__vantaLoaded = true;
+      window.dispatchEvent(new CustomEvent('vanta:loaded'));
       setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 700);
     }
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -69,16 +71,16 @@
   <svg class="edge-glow__defs" width="0" height="0" aria-hidden="true" focusable="false">
     <defs>
       <filter id="edgeLiquid" x="-35%" y="-35%" width="170%" height="170%" color-interpolation-filters="sRGB">
-        <feTurbulence type="fractalNoise" baseFrequency="0.005 0.009" numOctaves="2" seed="8" result="noise">
-          <animate attributeName="baseFrequency" dur="20s" repeatCount="indefinite"
-            values="0.005 0.009; 0.008 0.006; 0.004 0.010; 0.007 0.007; 0.005 0.009"
-            keyTimes="0; 0.28; 0.55; 0.8; 1" calcMode="spline"
-            keySplines="0.4 0 0.6 1; 0.4 0 0.6 1; 0.4 0 0.6 1; 0.4 0 0.6 1"/>
+        <feTurbulence type="fractalNoise" baseFrequency="0.0035 0.0055" numOctaves="1" seed="8" result="noise">
+          <animate attributeName="baseFrequency" dur="24s" repeatCount="indefinite"
+            values="0.0035 0.0055; 0.0050 0.0040; 0.0030 0.0060; 0.0035 0.0055"
+            keyTimes="0; 0.35; 0.7; 1" calcMode="spline"
+            keySplines="0.4 0 0.6 1; 0.4 0 0.6 1; 0.4 0 0.6 1"/>
         </feTurbulence>
-        <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="40">
-          <animate attributeName="scale" dur="10s" repeatCount="indefinite"
-            values="28; 48; 34; 44; 28" keyTimes="0;0.25;0.5;0.75;1" calcMode="spline"
-            keySplines="0.45 0 0.55 1; 0.45 0 0.55 1; 0.45 0 0.55 1; 0.45 0 0.55 1"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" xChannelSelector="R" yChannelSelector="G" scale="12">
+          <animate attributeName="scale" dur="12s" repeatCount="indefinite"
+            values="9; 16; 11; 9" keyTimes="0;0.33;0.66;1" calcMode="spline"
+            keySplines="0.45 0 0.55 1; 0.45 0 0.55 1; 0.45 0 0.55 1"/>
         </feDisplacementMap>
       </filter>
     </defs>
@@ -145,8 +147,8 @@
       <header class="hero__lockup">
         <h1 data-chars>Vanta</h1>
         <p>Exotic auto repair</p>
-        <a class="cta" href="#book" data-magnetic>
-          <span class="cta__label">Book a bay</span>
+        <a class="cta" href="#book">
+          <span class="cta__label">Book now</span>
           <span class="cta__fill" aria-hidden="true"></span>
         </a>
       </header>
@@ -239,7 +241,7 @@
       </blockquote>
     </div>
     <h2 data-reveal data-chars>Book your bay</h2>
-    <a class="cta cta--dark" href="#" data-dead data-magnetic data-reveal>
+    <a class="cta cta--dark" href="#" data-dead data-reveal>
       <span class="cta__label">Book now</span>
       <span class="cta__fill" aria-hidden="true"></span>
     </a>

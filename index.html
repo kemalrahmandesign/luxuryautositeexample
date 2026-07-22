@@ -27,15 +27,19 @@
     var count = el.querySelector('.loader__count i');
     var root = document.documentElement;
     root.classList.add('is-loading');
-    function finish() {
-      el.classList.add('is-done');
-      root.classList.remove('is-loading');
+    function signalLoaded() {
+      if (window.__vantaLoaded) return;
       window.__vantaLoaded = true;
       window.dispatchEvent(new CustomEvent('vanta:loaded'));
+    }
+    function dissolve() {
+      el.classList.add('is-done');
+      root.classList.remove('is-loading');
       setTimeout(function () { if (el.parentNode) el.parentNode.removeChild(el); }, 700);
     }
     if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      finish();
+      signalLoaded();
+      dissolve();
       return;
     }
     var dur = 620, start = 0;
@@ -48,7 +52,10 @@
       else {
         el.classList.add('is-counted');
         setTimeout(function () { el.classList.add('is-expanding'); }, 300);
-        setTimeout(finish, 2200);
+        /* VANTA reveal begins during the window's final ease-out, and the
+           loader dissolves into the live hero while it is still revealing */
+        setTimeout(signalLoaded, 1180);
+        setTimeout(dissolve, 1440);
       }
     }
     requestAnimationFrame(step);

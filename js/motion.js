@@ -154,12 +154,13 @@
       [0.31, 7.55],
       [0.55, 15.30],  /* morph plays through the first dissolve */
       [0.75, 15.30],  /* skeleton hold: callouts land on a parked frame */
-      [0.94, 19.28],  /* dive to white */
+      [0.96, 19.28],  /* dive to white (reach white late = short white hold) */
       [1.00, 19.28]
     ],
     svc: [
-      [0.00, 0],      /* streaks run from the first pixel after the white */
-      [0.43, 7.55],
+      [0.00, 0],      /* opens on the same white the dive ends on */
+      [0.05, 2.1],    /* blow through the white intro fast: streaks arrive at once */
+      [0.44, 7.55],   /* streaks develop */
       [0.67, 13.25],  /* barrel roll lands on the headlight */
       [0.78, 13.25],  /* headlight hold: texts + flicker */
       [0.96, 19.28],  /* rise into the streak, out to black */
@@ -255,7 +256,8 @@
       card.classList.toggle('is-on', p > 0.585 + i * 0.022 && p < 0.73);
     });
 
-    particlesActive = p < 0.1;
+    /* dust drifts over the opening hold AND the x-ray skeleton hold */
+    particlesActive = p < 0.1 || (p > 0.54 && p < 0.76);
   }
 
   /* ---------- services scene: bone room, cards over the warp ---------- */

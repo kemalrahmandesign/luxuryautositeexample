@@ -47,8 +47,8 @@
       if (p < 1) { requestAnimationFrame(step); }
       else {
         el.classList.add('is-counted');
-        setTimeout(function () { el.classList.add('is-expanding'); }, 320);
-        setTimeout(finish, 1320);
+        setTimeout(function () { el.classList.add('is-expanding'); }, 300);
+        setTimeout(finish, 1780);
       }
     }
     requestAnimationFrame(step);
@@ -108,14 +108,18 @@
           <p class="callouts__sub">Four of the two hundred things we do. If your car has it, we have the bay, the tool, and the hands for it.</p>
         </div>
         <svg class="callouts__lines" viewBox="0 0 100 56.25" preserveAspectRatio="none" aria-hidden="true">
-          <path d="M 76 14 H 70 L 64 33" />
-          <path d="M 25 12 H 32 L 40 30" />
-          <path d="M 24 34 H 30 L 35 40" />
-          <path d="M 72 38 H 60 L 49 28" />
-          <circle cx="64" cy="33" r="0.5" />
-          <circle cx="40" cy="30" r="0.5" />
-          <circle cx="35" cy="40" r="0.5" />
-          <circle cx="49" cy="28" r="0.5" />
+          <!-- Engine (card upper-right) -> rear mechanicals -->
+          <path d="M 80 18 V 27 L 83 36" />
+          <!-- Suspension (card upper-left) -> front coil spring -->
+          <path d="M 29 17 V 25 L 29 31" />
+          <!-- Brakes (card lower-left) -> front brake disc -->
+          <path d="M 23 35 H 28 L 26 39" />
+          <!-- Body (card lower-right) -> rear quarter panel -->
+          <path d="M 70 38 H 64 L 60 30" />
+          <circle cx="83" cy="36" r="0.55" />
+          <circle cx="29" cy="31" r="0.55" />
+          <circle cx="26" cy="39" r="0.55" />
+          <circle cx="60" cy="30" r="0.55" />
         </svg>
         <aside class="callout" style="top: 16vh; right: 8vw;">
           <span class="badge">01</span>

@@ -283,14 +283,14 @@ img, video { display: block; max-width: 100%; }
 }
 .callouts__lines path {
   fill: none;
-  stroke: var(--color-ember-rust);
-  stroke-width: 1.2;
+  stroke: rgba(255, 255, 255, 0.85);
+  stroke-width: 1.1;
   vector-effect: non-scaling-stroke;
   stroke-linejoin: round;
   stroke-linecap: round;
 }
 .callouts__lines circle {
-  fill: var(--color-ember-rust);
+  fill: #ffffff;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -544,8 +544,8 @@ html.is-loading, html.is-loading body { overflow: hidden; }
   inset: 0;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 0 2vw;
+  justify-content: center;
+  gap: clamp(20px, 4.5vw, 84px);
   font-weight: 300;
   font-size: clamp(90px, 17vw, 340px);
   line-height: 1;
@@ -585,13 +585,17 @@ html.is-loading, html.is-loading body { overflow: hidden; }
   inset: 0;
   z-index: 1;
   opacity: 0;
-  clip-path: inset(54% 45.5% 37% 45.5% round 9px);
+  /* Equal insets on a 16:9 viewport = a centred 16:9 window. */
+  clip-path: inset(45.5% 45.5% round 22px);
   transition: opacity 0.4s ease;
 }
 .loader.is-counted .loader__reveal { opacity: 1; }
-.loader.is-expanding .loader__reveal {
-  clip-path: inset(0% 0% 0% 0% round 0px);
-  transition: clip-path 1.05s cubic-bezier(0.76, 0, 0.14, 1);
+.loader.is-expanding .loader__reveal { animation: loaderReveal 1.4s forwards; }
+/* slow start -> accelerate to ~90% open -> long slow ease-out to finish */
+@keyframes loaderReveal {
+  0%   { clip-path: inset(45.5% 45.5% round 22px); animation-timing-function: cubic-bezier(0.42, 0, 0.8, 0.5); }
+  60%  { clip-path: inset(4.5% 4.5% round 12px); animation-timing-function: cubic-bezier(0.15, 0.75, 0.25, 1); }
+  100% { clip-path: inset(0% 0% round 0px); }
 }
 .loader__reveal img { width: 100%; height: 100%; object-fit: cover; display: block; }
 

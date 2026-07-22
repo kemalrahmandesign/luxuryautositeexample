@@ -213,8 +213,8 @@
     /* The giant VANTA reveals letter-by-letter once the loader hands off
        (bottom-up per glyph, left-to-right via the --d stagger). */
     function revealTitle() { heroRefs.lockupTitle.classList.add('chars-in'); }
-    if (window.__vantaLoaded) setTimeout(revealTitle, 120);
-    else window.addEventListener('vanta:loaded', function () { setTimeout(revealTitle, 120); }, { once: true });
+    if (window.__vantaLoaded) revealTitle();
+    else window.addEventListener('vanta:loaded', revealTitle, { once: true });
   }
 
   function heroFrame(pin, p) {

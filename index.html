@@ -52,10 +52,11 @@
       else {
         el.classList.add('is-counted');
         setTimeout(function () { el.classList.add('is-expanding'); }, 300);
-        /* VANTA reveal begins during the window's final ease-out, and the
-           loader dissolves into the live hero while it is still revealing */
-        setTimeout(signalLoaded, 1180);
-        setTimeout(dissolve, 1440);
+        /* VANTA reveal fires the moment the window's final ease-out begins
+           (~46% of the 1.8s reveal after the 300ms start delay); the loader
+           dissolves just behind it so the letters are visible as they rise */
+        setTimeout(signalLoaded, 1130);
+        setTimeout(dissolve, 1300);
       }
     }
     requestAnimationFrame(step);

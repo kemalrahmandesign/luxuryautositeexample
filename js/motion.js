@@ -383,7 +383,6 @@
     pCtx.clearRect(0, 0, pCanvas.width, pCanvas.height);
     if (!particlesActive) return;
     pCtx.fillStyle = '#ffffff';
-    pCtx.shadowColor = 'rgba(255,255,255,0.9)';
     for (var i = 0; i < motes.length; i++) {
       var m = motes[i];
       m.x -= m.s;
@@ -393,14 +392,12 @@
       var y = m.y + Math.sin(t * 0.0003 + m.w) * 0.006;
       /* dim anything drifting in front of the car so it stays a backdrop */
       var inCar = m.x > 0.34 && m.x < 0.66 && y > 0.55;
-      pCtx.globalAlpha = particlesAlpha * m.a * (inCar ? 0.3 : 1) * (0.55 + 0.45 * Math.sin(t * 0.0008 + m.w));
-      pCtx.shadowBlur = m.r * 2.5;
+      pCtx.globalAlpha = particlesAlpha * m.a * (inCar ? 0.3 : 1) * (0.6 + 0.4 * Math.sin(t * 0.0008 + m.w));
       pCtx.beginPath();
       pCtx.arc(m.x * pCanvas.width, y * pCanvas.height, m.r, 0, Math.PI * 2);
       pCtx.fill();
     }
     pCtx.globalAlpha = 1;
-    pCtx.shadowBlur = 0;
   }
 
   /* ---------- reveals for non-pinned sections ---------- */

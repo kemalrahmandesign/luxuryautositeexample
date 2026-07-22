@@ -537,6 +537,7 @@ html.is-loading, html.is-loading body { overflow: hidden; }
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.6s ease;
+  will-change: opacity;
 }
 /* Thin, wide, very-low-contrast wordmark whose letters spread edge-to-edge */
 .loader__word {
@@ -590,7 +591,7 @@ html.is-loading, html.is-loading body { overflow: hidden; }
   transition: opacity 0.4s ease;
 }
 .loader.is-counted .loader__reveal { opacity: 1; }
-.loader.is-expanding .loader__reveal { animation: loaderReveal 1.8s forwards; }
+.loader.is-expanding .loader__reveal { animation: loaderReveal 1.8s forwards; will-change: clip-path; }
 /* fast open to ~99% (thin border), then a long slow crawl (near-pause) to full */
 @keyframes loaderReveal {
   0%   { clip-path: inset(45.5% 45.5% round 22px); animation-timing-function: cubic-bezier(0.28, 0.55, 0.4, 1); }
@@ -606,8 +607,6 @@ html.reduced .loader { display: none; }
 @media (pointer: fine) {
   html.cursor-on, html.cursor-on * { cursor: none; }
 }
-/* difference blend => the cursor is always the inverse of whatever is behind
-   it: black on light backgrounds, white on dark. */
 .cursor-dot, .cursor-ring {
   position: fixed;
   top: 0; left: 0;
@@ -615,16 +614,19 @@ html.reduced .loader { display: none; }
   pointer-events: none;
   border-radius: 50%;
   will-change: transform;
-  mix-blend-mode: difference;
 }
+/* Only the small dot uses the difference blend (cheap, still adaptive:
+   black on light, white on dark); the ring is a plain outline so we don't
+   force a full-page recomposite every frame. */
 .cursor-dot {
   width: 8px; height: 8px;
   background: #fff;
+  mix-blend-mode: difference;
   transition: opacity 0.25s ease;
 }
 .cursor-ring {
   width: 30px; height: 30px;
-  border: 1.5px solid #fff;
+  border: 1.5px solid rgba(150, 150, 150, 0.6);
   transition: width 0.25s ease, height 0.25s ease, opacity 0.25s ease;
 }
 .cursor-ring.is-hot { width: 46px; height: 46px; }

@@ -154,12 +154,12 @@
       [0.31, 7.55],
       [0.55, 15.30],  /* morph plays through the first dissolve */
       [0.75, 15.30],  /* skeleton hold: callouts land on a parked frame */
-      [0.96, 19.28],  /* dive to white (reach white late = short white hold) */
+      [0.95, 19.28],  /* dive to white, fully white before the veil completes */
       [1.00, 19.28]
     ],
     svc: [
       [0.00, 0],      /* opens on the same white the dive ends on */
-      [0.05, 2.1],    /* blow through the white intro fast: streaks arrive at once */
+      [0.025, 2.3],   /* immediately into the streaks - white end of dive == warp */
       [0.44, 7.55],   /* streaks develop */
       [0.67, 13.25],  /* barrel roll lands on the headlight */
       [0.78, 13.25],  /* headlight hold: texts + flicker */
@@ -256,8 +256,12 @@
       card.classList.toggle('is-on', p > 0.585 + i * 0.022 && p < 0.73);
     });
 
-    /* dust drifts over the opening hold AND the x-ray skeleton hold */
-    particlesActive = p < 0.1 || (p > 0.54 && p < 0.76);
+    /* dust drifts over the opening hold AND the x-ray skeleton hold; it
+       eases in/out rather than popping on */
+    var openA = 1 - fade(p, 0.05, 0.1);
+    var skelA = fade(p, 0.55, 0.63) - fade(p, 0.72, 0.75);
+    particlesAlpha = Math.max(openA, skelA);
+    particlesActive = particlesAlpha > 0.01;
   }
 
   /* ---------- services scene: bone room, cards over the warp ---------- */
@@ -342,6 +346,7 @@
   /* ---------- hero dust particles ---------- */
 
   var particlesActive = true;
+  var particlesAlpha = 1;
   var pCanvas = $('.hero__particles');
   var pCtx = pCanvas ? pCanvas.getContext('2d') : null;
   var motes = [];
@@ -388,7 +393,7 @@
       var y = m.y + Math.sin(t * 0.0003 + m.w) * 0.006;
       /* dim anything drifting in front of the car so it stays a backdrop */
       var inCar = m.x > 0.34 && m.x < 0.66 && y > 0.55;
-      pCtx.globalAlpha = m.a * (inCar ? 0.3 : 1) * (0.55 + 0.45 * Math.sin(t * 0.0008 + m.w));
+      pCtx.globalAlpha = particlesAlpha * m.a * (inCar ? 0.3 : 1) * (0.55 + 0.45 * Math.sin(t * 0.0008 + m.w));
       pCtx.shadowBlur = m.r * 2.5;
       pCtx.beginPath();
       pCtx.arc(m.x * pCanvas.width, y * pCanvas.height, m.r, 0, Math.PI * 2);
